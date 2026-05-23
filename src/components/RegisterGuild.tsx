@@ -24,6 +24,10 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
   const [kota, setKota] = useState("");
   const [nicknameFF, setNicknameFF] = useState("");
 
+  // Credentials for the leader account
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
   const [registeredGuild, setRegisteredGuild] = useState<Guild | null>(null);
   const [copied, setCopied] = useState(false);
   const [errorCode, setErrorCode] = useState("");
@@ -37,6 +41,8 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
     if (!nicknameFF.trim()) return setErrorCode("Nickname FF Ketua wajib diisi.");
     if (!kontak.trim()) return setErrorCode("Kontak WA/Discord wajib diisi.");
     if (!kota.trim()) return setErrorCode("Asal kota wajib diisi.");
+    if (!username.trim()) return setErrorCode("Username wajib diisi.");
+    if (!password.trim()) return setErrorCode("Password wajib diisi.");
 
     // Create the guild object
     const finalGuildId = generateGuildId(namaGuild);
@@ -48,7 +54,7 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
       created_at: new Date().toISOString(),
     };
 
-    // Create the leader as the first member with "Ketua" role
+    // Create the leader as the first member with "Ketua" role and credential properties
     const leaderMember: Member = {
       id_member: `MEM-CHIEF-${generateId()}`,
       id_guild: finalGuildId,
@@ -57,6 +63,8 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
       level: Number(level),
       kota: kota.trim(),
       nickname_ff: nicknameFF.trim(),
+      username: username.trim().toLowerCase(),
+      password: password.trim(),
       role: "Ketua",
       created_at: new Date().toISOString(),
     };
@@ -99,8 +107,11 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
               <div className="text-3xl font-mono font-extrabold text-emerald-400 tracking-wider my-3 select-all">
                 {registeredGuild.id_guild}
               </div>
-              <div className="text-xs text-slate-400 mt-1">
-                Klan: <span className="text-white font-semibold">{registeredGuild.nama_guild}</span>
+              <div className="text-xs text-slate-400 mt-1 space-y-1">
+                <div>Klan: <span className="text-white font-semibold">{registeredGuild.nama_guild}</span></div>
+                <div className="border-t border-slate-900 pt-2 mt-2 font-sans">
+                  Username Login: <span className="text-emerald-400 font-mono font-bold">{username.toLowerCase()}</span> &bull; Password: <span className="text-emerald-400 font-mono font-bold">{password}</span>
+                </div>
               </div>
               
               <button
@@ -291,6 +302,43 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
                   required
                   value={kota}
                   onChange={(e) => setKota(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-700 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION C: KREDENSIAL LOGIN KETUA */}
+          <div className="space-y-4 pt-4 border-t border-slate-800/80">
+            <h3 className="text-xs font-bold text-orange-500 uppercase tracking-widest">
+              C. Kredensial Login Ketua
+            </h3>
+            
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-slate-300 text-xs font-medium uppercase tracking-wider mb-2">
+                  Username Ketua *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: fajar123"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-700 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 text-xs font-medium uppercase tracking-wider mb-2">
+                  Password Ketua *
+                </label>
+                <input
+                  type="password"
+                  placeholder="Masukkan password klan"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-700 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition"
                 />
               </div>

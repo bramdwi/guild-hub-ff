@@ -32,6 +32,7 @@ export default function App() {
   const [db, setDb] = useState<DBState>(getDB());
   const [currentView, setCurrentView] = useState<ActiveView>("landing");
   const [activeGuildId, setActiveGuildId] = useState<string | null>(null);
+  const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
   
   // LogicFlow variables and booting animation state
   const [isBooting, setIsBooting] = useState(true);
@@ -98,23 +99,25 @@ export default function App() {
   }, []);
 
   // Sync state helpers
-  const handleEnterGuild = (guildId: string) => {
+  // Sync state helpers
+  const handleLoginSuccess = (guildId: string, memberId: string) => {
     setActiveGuildId(guildId);
+    setActiveMemberId(memberId);
     setCurrentView("dashboard");
   };
 
   const handleRegisterGuild = (newGuild: Guild, leader: Member) => {
     const updatedDB = addGuildToDB(newGuild, leader);
     setDb(updatedDB);
-    // Auto-login to the newly registered guild
+    // Auto-login as the Ketua of the newly registered guild
     setActiveGuildId(newGuild.id_guild);
+    setActiveMemberId(leader.id_member);
+    setCurrentView("dashboard");
   };
 
   const handleRegisterMember = (newMember: Member) => {
     const updatedDB = addMemberToDB(newMember);
     setDb(updatedDB);
-    // Member join succeeds. Under real conditions we would auto-login
-    // We let the success card direct them to login
   };
 
   const handleAddPost = (text: string) => {
@@ -174,6 +177,7 @@ export default function App() {
     const defaultDB = resetDBToDefault();
     setDb(defaultDB);
     setActiveGuildId(null);
+    setActiveMemberId(null);
     setCurrentView("landing");
     setPrefilledGuildId("");
     
@@ -190,6 +194,7 @@ export default function App() {
 
   const handleLogout = () => {
     setActiveGuildId(null);
+    setActiveMemberId(null);
     setCurrentView("landing");
     setPrefilledGuildId("");
     
@@ -322,7 +327,7 @@ export default function App() {
         {currentView === "landing" && (
           <LandingPage
             db={db}
-            onEnterGuild={handleEnterGuild}
+            onLoginSuccess={handleLoginSuccess}
             onNavigate={(view) => setCurrentView(view)}
             prefilledGuildId={prefilledGuildId}
             setPrefilledGuildId={setPrefilledGuildId}
@@ -342,7 +347,7 @@ export default function App() {
             prefilledGuildId={prefilledGuildId}
             onRegister={handleRegisterMember}
             onBack={handleLogout}
-            onEnterGuild={handleEnterGuild}
+            onEnterGuild={handleLoginSuccess}
           />
         )}
 
@@ -350,6 +355,7 @@ export default function App() {
           <GuildDashboard
             db={db}
             guildId={activeGuildId}
+            activeMemberId={activeMemberId}
             onLogout={handleLogout}
             onAddPost={(text, author, role) => handlePublishPost(text, author, role)}
             onEditPost={handleEditPost}

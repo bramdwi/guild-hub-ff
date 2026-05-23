@@ -21,6 +21,8 @@ export interface Member {
   level: number;         // FF Account Level
   kota: string;          // Origin City
   nickname_ff: string;   // In-Game Name (IGN)
+  username: string;      // Custom username for login
+  password: string;      // Password for authentication
   role: UserRole;        // Role determination
   created_at: string;
 }

@@ -13,7 +13,7 @@ interface RegisterMemberProps {
   prefilledGuildId: string;
   onRegister: (member: Member) => void;
   onBack: () => void;
-  onEnterGuild: (guildId: string) => void;
+  onEnterGuild: (guildId: string, memberId: string) => void;
 }
 
 export default function RegisterMember({
@@ -33,6 +33,10 @@ export default function RegisterMember({
   const [level, setLevel] = useState<number | "">("");
   const [kota, setKota] = useState("");
   const [nicknameFf, setNicknameFf] = useState("");
+
+  // Credentials for Member account
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   const [registeredMember, setRegisteredMember] = useState<Member | null>(null);
   const [errorCode, setErrorCode] = useState("");
@@ -80,6 +84,8 @@ export default function RegisterMember({
     if (level === "" || Number(level) < 1 || Number(level) > 100) {
       return setErrorCode("Level Akun FF harus berada di kisaran 1 - 100.");
     }
+    if (!username.trim()) return setErrorCode("Username wajib diisi.");
+    if (!password.trim()) return setErrorCode("Password wajib diisi.");
 
     const newMember: Member = {
       id_member: `MEM-${generateId()}`,
@@ -89,6 +95,8 @@ export default function RegisterMember({
       level: Number(level),
       kota: kota.trim(),
       nickname_ff: nicknameFf.trim(),
+      username: username.trim().toLowerCase(),
+      password: password.trim(),
       role: "Member", // Default role is "Member"
       created_at: new Date().toISOString(),
     };
@@ -161,12 +169,21 @@ export default function RegisterMember({
                     <span className="block font-semibold text-slate-300 truncate">{registeredMember.kota}</span>
                   </div>
                 </div>
+
+                <div className="border-t border-slate-900 pt-3 mt-1 text-xs">
+                  <span className="text-slate-500 text-[10px] font-bold block uppercase tracking-wider mb-1 font-mono">AKSES LOGIN ANDA</span>
+                  <span className="text-slate-300">Username: </span>
+                  <span className="text-blue-400 font-mono font-bold">{username.toLowerCase()}</span>
+                  <span className="text-slate-500 mx-2">|</span>
+                  <span className="text-slate-300">Password: </span>
+                  <span className="text-blue-400 font-mono font-bold">{password}</span>
+                </div>
               </div>
             </div>
 
             <div className="pt-4 flex flex-col gap-2">
               <button
-                onClick={() => onEnterGuild(registeredMember.id_guild)}
+                onClick={() => onEnterGuild(registeredMember.id_guild, registeredMember.id_member)}
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-display font-semibold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/35"
               >
                 Masuk ke Dashboard Guild
@@ -333,6 +350,43 @@ export default function RegisterMember({
                   required
                   value={kota}
                   onChange={(e) => setKota(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-700 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* KREDENSIAL ANGGOTA BARU */}
+          <div className="space-y-4 pt-4 border-t border-slate-800/80">
+            <h3 className="text-xs font-bold text-blue-400 uppercase tracking-widest">
+              Akun Kredensial Akses (Untuk Login)
+            </h3>
+            
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-slate-300 text-xs font-medium uppercase tracking-wider mb-2">
+                  Username Pilihan *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: budi123"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-700 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 text-xs font-medium uppercase tracking-wider mb-2">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  placeholder="Masukkan password Anda"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-700 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
                 />
               </div>

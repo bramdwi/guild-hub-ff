@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from "react";
 import { 
-  Shield, Users, Bell, LogOut, Copy, Check, Users2, Info, Share2, Phone
+  Shield, Users, Bell, LogOut, Copy, Check, Users2, Info, Share2, Phone, Award, Star
 } from "lucide-react";
 import { DBState, Guild, Member, MadingPost, UserRole } from "../types";
 import MadingSection from "./MadingSection";
@@ -14,6 +14,7 @@ import AnggotaSection from "./AnggotaSection";
 interface GuildDashboardProps {
   db: DBState;
   guildId: string;
+  activeMemberId: string | null;
   onLogout: () => void;
   onAddPost: (text: string, authorNickname: string, authorRole: UserRole) => void;
   onEditPost: (postId: string, text: string) => void;
@@ -25,6 +26,7 @@ interface GuildDashboardProps {
 export default function GuildDashboard({
   db,
   guildId,
+  activeMemberId,
   onLogout,
   onAddPost,
   onEditPost,
@@ -33,9 +35,6 @@ export default function GuildDashboard({
   onKicked,
 }: GuildDashboardProps) {
   const [activeTab, setActiveTab] = useState<"mading" | "anggota" | "tentang">("mading");
-  
-  // Simulated logged-in user state
-  const [currentUser, setCurrentUser] = useState<Member | null>(null);
   
   // Clipboard copy feedback
   const [copiedLink, setCopiedLink] = useState(false);
@@ -48,30 +47,8 @@ export default function GuildDashboard({
   const guildMembers = db.members.filter((m) => m.id_guild === guildId);
   const guildPosts = db.mading.filter((p) => p.id_guild === guildId);
 
-  // Automatically set default logged-in user to the "Ketua" of this guild upon initial load
-  useEffect(() => {
-    if (guildMembers.length > 0) {
-      // Find Ketua first, else select first member
-      const ketua = guildMembers.find((m) => m.role === "Ketua") || guildMembers[0];
-      setCurrentUser(ketua);
-    }
-  }, [guildId]); // Reset only if guild ID changes, or if current user becomes invalid
-
-  // If members lists is updated, make sure current user is synchronized! (e.g. if their role was changed in sandbox view)
-  useEffect(() => {
-    if (currentUser) {
-      const updatedUser = guildMembers.find((m) => m.id_member === currentUser.id_member);
-      if (updatedUser) {
-        setCurrentUser(updatedUser);
-      } else if (guildMembers.length > 0) {
-        // Current user was kicked, select another
-        const ketua = guildMembers.find((m) => m.role === "Ketua") || guildMembers[0];
-        setCurrentUser(ketua);
-      } else {
-        setCurrentUser(null);
-      }
-    }
-  }, [db.members]);
+  // Derive current logged-in user dynamically from the activeMemberId prop
+  const currentUser = db.members.find((m) => m.id_member === activeMemberId) || null;
 
   if (!currentGuild) {
     return (
@@ -166,42 +143,31 @@ export default function GuildDashboard({
           </div>
         </div>
 
-        {/* User Identity switcher & logout */}
+        {/* User Identity active display & logout */}
         <div className="flex flex-wrap items-center gap-3 border-t border-slate-805/50 md:border-t-0 pt-4 md:pt-0">
           
-          {/* SANDBOX SWITCH ACCOUNT COMPONENT */}
-          {guildMembers.length > 0 && currentUser && (
-            <div className="bg-slate-950 border border-slate-850 px-3 py-2 rounded-2xl flex items-center gap-2 max-w-xs relative group">
+          {/* ACTIVE ACCOUNT LOGGED IN CARD */}
+          {currentUser && (
+            <div className="bg-slate-950 border border-slate-850 px-4 py-2 rounded-2xl flex items-center gap-3 max-w-xs relative">
               <div className="space-y-0.5 text-right shrink-0">
-                <span className="text-[9px] font-bold text-slate-505 block tracking-wider uppercase font-mono">
-                  Simulasi Akun Roster:
+                <span className="text-[9px] font-bold text-slate-500 block tracking-wider uppercase font-mono">
+                  LOGGED IN AS:
                 </span>
-                <select
-                  value={currentUser.id_member}
-                  onChange={(e) => {
-                    const match = guildMembers.find((m) => m.id_member === e.target.value);
-                    if (match) setCurrentUser(match);
-                  }}
-                  className="bg-transparent border-none text-xs text-white font-bold font-mono py-0 px-0 outline-none cursor-pointer focus:ring-0 max-w-[150px] truncate"
-                >
-                  {guildMembers.map((member) => (
-                    <option key={member.id_member} value={member.id_member} className="bg-slate-950 text-white">
-                      {member.nickname_ff} ({member.role})
-                    </option>
-                  ))}
-                </select>
+                <span className="text-white font-mono font-bold text-xs block">
+                  {currentUser.nickname_ff}
+                </span>
               </div>
 
               {/* Display Profile Avatar based on selected role */}
-              <div className={`w-8 h-8 rounded-full border flex items-center justify-center relative shrink-0 ${
+              <div className={`w-8 h-8 rounded-full border flex items-center justify-center relative shrink-0 font-display font-extrabold ${
                 currentUser.role === "Ketua" 
                   ? "bg-red-500/10 border-red-500/30 text-red-400" 
                   : currentUser.role === "Officer"
                   ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
                   : "bg-blue-500/10 border-blue-500/30 text-blue-400"
               }`}>
-                <span className="text-xs font-bold uppercase">{currentUser.nickname_ff[0]}</span>
-                <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-950" title="Online"></span>
+                <span className="text-xs uppercase">{currentUser.nickname_ff[0]}</span>
+                <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-950" title="Online Roster"></span>
               </div>
             </div>
           )}
@@ -359,7 +325,7 @@ export default function GuildDashboard({
             </div>
 
             <div className="bg-slate-950 border border-slate-900 p-2 text-[10px] rounded text-slate-500 leading-normal block">
-              💡 <span className="text-slate-400 font-semibold">TIPS:</span> Anda bebas mengubah identitas pada klan melalui menu select dropdown di kanan atas.
+              🔒 <span className="text-slate-400 font-semibold">SECURE LOGIN:</span> Sesi aktif Anda terhubung secara aman di database server klan.
             </div>
           </div>
 
@@ -448,6 +414,56 @@ export default function GuildDashboard({
                   <div>
                     <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">TOTAL KEKUATAN ROSTER</span>
                     <span className="block text-white font-bold text-xs sm:text-sm">{guildMembers.length} Aktif Players</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 🏆 DAFTAR PENGHARGAAN GUILD */}
+              <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <h4 className="text-xs sm:text-sm font-display font-black text-amber-500 uppercase tracking-wider flex items-center gap-2">
+                  <Award className="w-5 h-5 animate-pulse text-amber-500" />
+                  🏆 LEMARI PENGHARGAAN & PRESTASI KLAN
+                </h4>
+                
+                <div className="grid sm:grid-cols-2 gap-3 text-xs leading-normal">
+                  <div className="bg-slate-950 border border-slate-850 p-3 rounded-xl flex items-center gap-3">
+                    <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg shrink-0">
+                      <Award className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold block text-white">JUARA 1 REGIONAL SCRIMS</span>
+                      <span className="text-[10px] text-slate-500 font-mono">Season 20 - FFML Community</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-slate-950 border border-slate-850 p-3 rounded-xl flex items-center gap-3">
+                    <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg shrink-0">
+                      <Star className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold block text-white">TOP 3 KLAN TERAKTIF NATIONAL</span>
+                      <span className="text-[10px] text-slate-500 font-mono">Verified Guild - Garena ID</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-950 border border-slate-850 p-3 rounded-xl flex items-center gap-3">
+                    <div className="p-2 bg-orange-500/10 text-orange-400 rounded-lg shrink-0">
+                      <Award className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold block text-white">PIALA INDONESIA ESPORTS RISING</span>
+                      <span className="text-[10px] text-slate-500 font-mono">Turnamen Garena 2025</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-950 border border-slate-850 p-3 rounded-xl flex items-center gap-3">
+                    <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg shrink-0">
+                      <Users2 className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold block text-white">KLAN KEKELUARGAAN TERBAIK</span>
+                      <span className="text-[10px] text-slate-500 font-mono">Kategori Komunitas Discord ID</span>
+                    </div>
                   </div>
                 </div>
               </div>
