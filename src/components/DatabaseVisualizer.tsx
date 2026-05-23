@@ -4,16 +4,17 @@
  */
 
 import React, { useState } from "react";
-import { Database, Eye, EyeOff, LayoutList, RefreshCw } from "lucide-react";
+import { Database, Eye, EyeOff, LayoutList, RefreshCw, Cpu } from "lucide-react";
 import { DBState } from "../types";
 import { resetDBToDefault } from "../utils/storage";
 
 interface DatabaseVisualizerProps {
   db: DBState;
   onResetDB: () => void;
+  onRebootSystem?: () => void;
 }
 
-export default function DatabaseVisualizer({ db, onResetDB }: DatabaseVisualizerProps) {
+export default function DatabaseVisualizer({ db, onResetDB, onRebootSystem }: DatabaseVisualizerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeCollection, setActiveCollection] = useState<"guilds" | "members" | "mading" | "all">("all");
 
@@ -49,6 +50,17 @@ export default function DatabaseVisualizer({ db, onResetDB }: DatabaseVisualizer
 
         {/* Action Toggle buttons */}
         <div className="flex items-center gap-2 self-start sm:self-center">
+          {onRebootSystem && (
+            <button
+              onClick={onRebootSystem}
+              title="Instansiasi Ulang Logika Hub (Reboot)"
+              className="flex items-center gap-1.5 bg-slate-900 hover:bg-orange-600/20 border border-slate-700 hover:border-orange-500/30 text-orange-400 px-3 py-1.5 rounded-xl text-xs font-semibold font-sans transition group"
+            >
+              <Cpu className="w-3.5 h-3.5 text-orange-500 group-hover:rotate-90 transition-transform duration-300" />
+              Reboot Flow
+            </button>
+          )}
+
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl text-xs font-semibold font-sans transition"

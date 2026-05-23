@@ -242,3 +242,17 @@ export const resetDBToDefault = (): DBState => {
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(SEED_DATA));
   return SEED_DATA;
 };
+
+/**
+ * Instantiates the logic flow from initialize-guild-hub.json
+ * Input: appName (string)
+ * Output: { initialized: boolean }
+ */
+export const initializeGuildHub = (appName: string): { initialized: boolean } => {
+  console.log(`[LogicFlow M-d7074e0d] Starting: Initialize Guild Hub ("${appName}")`);
+  // V-b891d22a: Assign initialized = true
+  const initialized = true;
+  console.log(`[LogicFlow M-d7074e0d] V-b891d22a: App activation state set to initialized = ${initialized}`);
+  console.log(`[LogicFlow M-d7074e0d] R-2b020f5b: Returning initialization success`);
+  return { initialized };
+};

@@ -1,0 +1,62 @@
+{
+  "version": "1",
+  "label": "Initialize Guild Hub",
+  "description": "Komunitas gaming, terutama dalam genre battle royale seperti Free Fire, seringkali beroperasi dalam struktur guild atau klan. Manajemen guild yang efektif sangat krusial untuk koordinasi tim, perencanaan turnamen, dan memupuk rasa kebersamaan antar anggota. Namun, seringkali proses ini dilakukan secara manual melalui berbagai platform chat atau spreadsheet, yang dapat menimbulkan ketidak-efisienan dan kesulitan dalam pelacakan informasi.\n\n\"Guild Hub FF\" hadir sebagai solusi untuk memusatkan dan menyederhanakan manajemen guild. Platform ini dirancang untuk memberikan kemudahan bagi ketua guild dalam mengelola informasi guild dan anggotanya, serta bagi anggota untuk tetap terinformasi tentang kegiatan guild. Dengan antarmuka yang modern dan berorientasi pada gamer, \"Guild Hub FF\" bertujuan menjadi pusat aktivitas virtual bagi setiap guild Free Fire di Indonesia.",
+  "logicFlow": {
+    "id": "M-d7074e0d",
+    "type": "start",
+    "disable": false,
+    "children": [
+      {
+        "id": "S-450464b5",
+        "type": "box",
+        "label": "Initialize Application",
+        "children": [
+          {
+            "id": "V-b891d22a",
+            "type": "assign",
+            "label": "Application activation state",
+            "description": "",
+            "disable": false,
+            "compartments": [
+              {
+                "target": "initialized",
+                "expression": "true"
+              }
+            ]
+          }
+        ],
+        "description": "This is the entry-point function for the Guild Hub FF application logic.\nIt coordinates the storage and business logic for guilds, members, and announcements.\nIt acts as the orchestration layer for the various CRUD operations defined in the sections above."
+      },
+      {
+        "id": "R-2b020f5b",
+        "type": "return",
+        "label": "Return initialization success",
+        "description": "",
+        "disable": false
+      }
+    ],
+    "variables": {
+      "input": [
+        {
+          "id": "V-65530c5f",
+          "name": "app_name",
+          "description": "The name of the application to initialize.",
+          "type": "text"
+        }
+      ],
+      "output": [
+        {
+          "id": "V-5ada8d43",
+          "name": "initialized",
+          "description": "Flag indicating if the hub was initialized.",
+          "type": "boolean",
+          "isOptional": true
+        }
+      ],
+      "declarations": []
+    }
+  },
+  "expressionLanguage": "JavaScript",
+  "exportedAt": "2026-05-23T15:15:31.095Z"
+}
