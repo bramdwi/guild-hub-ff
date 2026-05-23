@@ -215,14 +215,36 @@ export const getDB = async (): Promise<DBState> => {
     if (membersRes.error) throw membersRes.error;
     if (madingRes.error) throw madingRes.error;
 
-    // Adapt database table format into the application's DBState structure
-    return {
+    const result: DBState = {
       guilds: guildsRes.data || [],
       members: membersRes.data || [],
       mading: madingRes.data || []
     };
-  } catch (error) {
-    console.error("[Supabase] Failed to fetch. Falling back to Local Storage.", error);
+
+    // Warn if all tables are empty — likely RLS policy not set or tables not created
+    if (result.guilds.length === 0 && result.members.length === 0 && result.mading.length === 0) {
+      console.warn("[Supabase] All tables returned empty. Possible causes: (1) Tables not created yet, (2) No seed data inserted, (3) Row Level Security (RLS) blocking access. Run the SQL in the walkthrough to fix.");
+    } else {
+      console.log(`[Supabase] Data loaded: ${result.guilds.length} guilds, ${result.members.length} members, ${result.mading.length} posts`);
+    }
+
+    return result;
+  } catch (error: any) {
+    console.error("[Supabase] Failed to fetch data:", error?.message || error);
+    if (error?.message?.includes("permission denied") || error?.code === "42501") {
+      console.error("[Supabase] RLS POLICY ERROR: Jalankan perintah SQL berikut di Supabase SQL Editor untuk mengizinkan akses publik:");
+      console.error(`
+        ALTER TABLE guilds ENABLE ROW LEVEL SECURITY;
+        CREATE POLICY "Allow all access" ON guilds FOR ALL USING (true) WITH CHECK (true);
+        
+        ALTER TABLE members ENABLE ROW LEVEL SECURITY;
+        CREATE POLICY "Allow all access" ON members FOR ALL USING (true) WITH CHECK (true);
+        
+        ALTER TABLE mading_posts ENABLE ROW LEVEL SECURITY;
+        CREATE POLICY "Allow all access" ON mading_posts FOR ALL USING (true) WITH CHECK (true);
+      `);
+    }
+    console.warn("[Supabase] Falling back to Local Storage.");
     return getLocalDB();
   }
 };
