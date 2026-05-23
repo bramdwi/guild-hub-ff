@@ -10,8 +10,9 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
 // Check if credentials are validly configured
-export const isSupabaseConfigured = 
-  supabaseUrl.trim() !== "" && 
+// These comparisons reject the PLACEHOLDER values, not real credentials
+export const isSupabaseConfigured =
+  supabaseUrl.trim() !== "" &&
   supabaseUrl !== "https://your-project-id.supabase.co" &&
   supabaseAnonKey.trim() !== "" &&
   supabaseAnonKey !== "your-anon-public-key";
