@@ -21,6 +21,7 @@ interface GuildDashboardProps {
   onDeletePost: (postId: string) => void;
   onUpdateRole: (memberId: string, role: UserRole) => void;
   onKicked: (memberId: string) => void;
+  onUpdateGuild: (guildId: string, slogan: string, logo: string) => void;
 }
 
 export default function GuildDashboard({
@@ -33,13 +34,8 @@ export default function GuildDashboard({
   onDeletePost,
   onUpdateRole,
   onKicked,
+  onUpdateGuild,
 }: GuildDashboardProps) {
-  const [activeTab, setActiveTab] = useState<"mading" | "anggota" | "tentang">("mading");
-  
-  // Clipboard copy feedback
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedId, setCopiedId] = useState(false);
-
   // Fetch current guild detail
   const currentGuild = db.guilds.find((g) => g.id_guild === guildId);
   
@@ -49,6 +45,39 @@ export default function GuildDashboard({
 
   // Derive current logged-in user dynamically from the activeMemberId prop
   const currentUser = db.members.find((m) => m.id_member === activeMemberId) || null;
+
+  const [activeTab, setActiveTab] = useState<"mading" | "anggota" | "tentang">("mading");
+  
+  // Clipboard copy feedback
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedId, setCopiedId] = useState(false);
+
+  const [sloganInput, setSloganInput] = useState("");
+  const [logoInput, setLogoInput] = useState("");
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Sync edits when currentGuild changes
+  useEffect(() => {
+    if (currentGuild) {
+      setSloganInput(currentGuild.slogan || "");
+      setLogoInput(currentGuild.logo || "");
+    }
+  }, [guildId, currentGuild]);
+
+  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Ukuran gambar terlalu besar! Maksimal 2MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoInput(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   if (!currentGuild) {
     return (
@@ -114,9 +143,17 @@ export default function GuildDashboard({
 
         {/* Guild metadata header */}
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-lg border border-orange-400/20 text-white font-display font-extrabold text-xl tracking-tight uppercase">
-            {currentGuild.nama_guild.slice(0, 2)}
-          </div>
+          {currentGuild.logo ? (
+            <img 
+              src={currentGuild.logo} 
+              alt="Logo Guild" 
+              className="w-14 h-14 object-cover rounded-2xl shadow-lg border border-orange-400/20 shrink-0"
+            />
+          ) : (
+            <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-lg border border-orange-400/20 text-white font-display font-extrabold text-xl tracking-tight uppercase">
+              {currentGuild.nama_guild.slice(0, 2)}
+            </div>
+          )}
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="font-display text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight">
@@ -137,6 +174,11 @@ export default function GuildDashboard({
               </button>
             </div>
             
+            {currentGuild.slogan && (
+              <p className="text-orange-405 text-[10px] sm:text-xs italic font-display font-black tracking-wider mt-0.5 uppercase text-orange-400">
+                🔥 "{currentGuild.slogan}"
+              </p>
+            )}
             <p className="text-slate-400 text-xs mt-1 font-sans">
               Ketua: <span className="text-slate-200 font-semibold">{currentGuild.nama_ketua}</span>
             </p>
@@ -372,6 +414,39 @@ export default function GuildDashboard({
                 </p>
               </div>
 
+              {/* Showcase Banner if Logo or Slogan exists */}
+              {(currentGuild.logo || currentGuild.slogan) && (
+                <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-5 relative overflow-hidden shadow-xl">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/5 blur-3xl rounded-full"></div>
+                  <div className="shrink-0 relative">
+                    {currentGuild.logo ? (
+                      <img 
+                        src={currentGuild.logo} 
+                        alt="Logo" 
+                        className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-2xl border-2 border-orange-500/20 shadow-2xl"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center font-display font-extrabold text-white text-3xl">
+                        {currentGuild.nama_guild.slice(0, 2)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-center sm:text-left space-y-2">
+                    <h4 className="font-display text-2xl font-black text-white uppercase tracking-tight">
+                      {currentGuild.nama_guild}
+                    </h4>
+                    {currentGuild.slogan && (
+                      <p className="text-orange-400 text-xs sm:text-sm italic font-display font-extrabold uppercase tracking-wide">
+                        🔥 "{currentGuild.slogan}"
+                      </p>
+                    )}
+                    <span className="inline-block font-mono text-[9px] font-bold text-slate-500 bg-slate-950 border border-slate-900 px-2.5 py-0.5 rounded">
+                      VERIFIED TIM KLASIFIKASI KLAN
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* Info Table */}
               <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800 space-y-4">
                 <div className="grid grid-cols-2 gap-4 border-b border-slate-950 pb-3">
@@ -478,6 +553,123 @@ export default function GuildDashboard({
                   2. Menjaga sopan santun antar rekan klan ksatria. Selalu hormati instruksi taktik yang diberikan Kapten (Ketua) dan wakil klan (Officer) demi keselarasan booyah!
                 </p>
               </div>
+
+              {/* ⚔️ PENGATURAN PROFIL KLAN (KHUSUS KETUA) */}
+              {currentUser?.role === "Ketua" && (
+                <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+                  <h4 className="text-xs sm:text-sm font-display font-black text-orange-500 uppercase tracking-wider flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-orange-500" />
+                    ⚔️ PENGATURAN PROFIL KLAN (KHUSUS KETUA)
+                  </h4>
+                  <p className="text-slate-400 text-[11px] leading-relaxed">
+                    Sebagai Ketua Guild, Anda memiliki hak istimewa untuk mengustomisasi slogan klan dan memasang lambang/logo resmi tim klan Anda agar terpampang gagah di arena.
+                  </p>
+
+                  <div className="space-y-4 text-xs">
+                    {/* Slogan input */}
+                    <div>
+                      <label htmlFor="guildSloganInput" className="block text-slate-300 text-[10px] font-bold uppercase tracking-wider mb-2">
+                        SLOGAN RESMI KLAN
+                      </label>
+                      <input
+                        id="guildSloganInput"
+                        type="text"
+                        placeholder="Contoh: Aim Keras, Booyah Pasti! ⚔️"
+                        value={sloganInput}
+                        onChange={(e) => setSloganInput(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-805 rounded-xl px-4 py-3 text-white placeholder-slate-700 text-xs focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition"
+                      />
+                    </div>
+
+                    {/* Logo selection */}
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="guildLogoFileInput" className="block text-slate-300 text-[10px] font-bold uppercase tracking-wider mb-2">
+                          UPLOAD LOGO TIM (PNG/JPG)
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            id="guildLogoFileInput"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoFileChange}
+                            className="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-950 file:text-slate-300 hover:file:bg-slate-800 file:cursor-pointer transition cursor-pointer"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label htmlFor="guildLogoUrlInput" className="block text-slate-300 text-[10px] font-bold uppercase tracking-wider mb-2">
+                          ATAU MASUKKAN URL GAMBAR LOGO
+                        </label>
+                        <input
+                          id="guildLogoUrlInput"
+                          type="text"
+                          placeholder="https://link-gambar-anda.com/logo.png"
+                          value={logoInput}
+                          onChange={(e) => setLogoInput(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-805 rounded-xl px-4 py-3 text-white placeholder-slate-700 text-xs focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Logo Preview */}
+                    <div className="flex items-center gap-4 bg-slate-950/80 border border-slate-850 p-4 rounded-2xl">
+                      <div className="shrink-0">
+                        {logoInput ? (
+                          <img
+                            src={logoInput}
+                            alt="Preview Logo"
+                            className="w-16 h-16 object-cover rounded-2xl border border-orange-500/20"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center font-display font-extrabold text-slate-600 text-[10px]">
+                            NO LOGO
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[10px] font-bold text-slate-500 block uppercase tracking-wider mb-1 font-mono">PREVIEW LAMBANG</span>
+                        <p className="text-[11px] text-slate-400 leading-normal">
+                          Lambang di atas akan menjadi representasi visual resmi klan Anda. Pastikan gambar rasio kotak (1:1) untuk hasil optimal.
+                        </p>
+                        {logoInput && (
+                          <button
+                            type="button"
+                            onClick={() => setLogoInput("")}
+                            className="text-[10px] font-bold text-red-400 hover:text-red-300 underline mt-2 block outline-none border-none bg-transparent cursor-pointer"
+                          >
+                            Hapus Logo
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="pt-2 flex items-center justify-between gap-4">
+                      {saveSuccess ? (
+                        <p className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5 animate-[pulse_1s_infinite]">
+                          ✓ Pengaturan Profil Klan Berhasil Disimpan!
+                        </p>
+                      ) : (
+                        <div />
+                      )}
+                      
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onUpdateGuild(guildId, sloganInput.trim(), logoInput);
+                          setSaveSuccess(true);
+                          setTimeout(() => setSaveSuccess(false), 3000);
+                        }}
+                        className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-display font-bold py-2.5 px-6 rounded-xl transition flex items-center gap-1.5 shadow-lg shadow-orange-600/10 active:scale-95 cursor-pointer outline-none border-none"
+                      >
+                        SIMPAN PERUBAHAN
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
             </div>
           )}

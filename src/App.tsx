@@ -13,11 +13,13 @@ import {
   deleteMadingPostFromDB, 
   updateMemberRoleInDB, 
   deleteMemberFromDB,
+  updateGuildProfileInDB,
   resetDBToDefault,
   generateId,
-  initializeGuildHub
+  initializeGuildHub,
+  SyncError
 } from "./utils/storage";
-import { isSupabaseConfigured } from "./utils/supabase";
+import { isSupabaseConfigured, checkDatabaseRLS, SupabaseStatus } from "./utils/supabase";
 import { DBState, ActiveView, Guild, Member, MadingPost, UserRole } from "./types";
 
 // Import Components
@@ -35,6 +37,10 @@ export default function App() {
   const [currentView, setCurrentView] = useState<ActiveView>("landing");
   const [activeGuildId, setActiveGuildId] = useState<string | null>(null);
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
+  
+  // Database status and in-app synchronization alert
+  const [supabaseStatus, setSupabaseStatus] = useState<SupabaseStatus>("local_only");
+  const [syncWarning, setSyncWarning] = useState<string | null>(null);
   
   // LogicFlow variables and booting animation state
   const [isBooting, setIsBooting] = useState(true);
@@ -63,8 +69,11 @@ export default function App() {
         : "MENGHUBUNGKAN KE DATABASE SERVER LOKAL..."
     );
     
-    // Start fetching data immediately on boot
-    getDB().then((data) => {
+    // Check RLS health first, then fetch database
+    checkDatabaseRLS().then(({ status }) => {
+      setSupabaseStatus(status);
+      return getDB();
+    }).then((data) => {
       loadedDbRef.current = data;
       hasFinishedLoadingRef.current = true;
     }).catch((err) => {
@@ -151,6 +160,13 @@ export default function App() {
     setCurrentView("dashboard");
   };
 
+  const triggerSyncWarning = (message: string) => {
+    setSyncWarning(message);
+    setTimeout(() => {
+      setSyncWarning((prev) => (prev === message ? null : prev));
+    }, 7000);
+  };
+
   const handleRegisterGuild = async (newGuild: Guild, leader: Member) => {
     setIsDbLoading(true);
     try {
@@ -160,9 +176,18 @@ export default function App() {
       setActiveGuildId(newGuild.id_guild);
       setActiveMemberId(leader.id_member);
       setCurrentView("dashboard");
-    } catch (err) {
-      console.error(err);
-      alert("Gagal mendaftarkan guild ke database server. Silakan coba lagi.");
+    } catch (err: any) {
+      if (err.name === "SyncError") {
+        setDb(err.dbState);
+        triggerSyncWarning(err.message);
+        // Proceed to dashboard sandbox mode
+        setActiveGuildId(newGuild.id_guild);
+        setActiveMemberId(leader.id_member);
+        setCurrentView("dashboard");
+      } else {
+        console.error(err);
+        alert("Gagal mendaftarkan guild ke database server. Silakan coba lagi.");
+      }
     } finally {
       setIsDbLoading(false);
     }
@@ -173,9 +198,14 @@ export default function App() {
     try {
       const updatedDB = await addMemberToDB(newMember);
       setDb(updatedDB);
-    } catch (err) {
-      console.error(err);
-      alert("Gagal bergabung sebagai anggota. Username mungkin sudah digunakan. Silakan coba lagi.");
+    } catch (err: any) {
+      if (err.name === "SyncError") {
+        setDb(err.dbState);
+        triggerSyncWarning(err.message);
+      } else {
+        console.error(err);
+        alert("Gagal bergabung sebagai anggota. Username mungkin sudah digunakan. Silakan coba lagi.");
+      }
     } finally {
       setIsDbLoading(false);
     }
@@ -198,9 +228,14 @@ export default function App() {
 
       const updatedDB = await addMadingPostToDB(newPost);
       setDb(updatedDB);
-    } catch (err) {
-      console.error(err);
-      alert("Gagal mempublikasikan pengumuman ke cloud server.");
+    } catch (err: any) {
+      if (err.name === "SyncError") {
+        setDb(err.dbState);
+        triggerSyncWarning(err.message);
+      } else {
+        console.error(err);
+        alert("Gagal mempublikasikan pengumuman ke cloud server.");
+      }
     } finally {
       setIsDbLoading(false);
     }
@@ -211,9 +246,14 @@ export default function App() {
     try {
       const updatedDB = await editMadingPostInDB(postId, text);
       setDb(updatedDB);
-    } catch (err) {
-      console.error(err);
-      alert("Gagal menyimpan perubahan pengumuman.");
+    } catch (err: any) {
+      if (err.name === "SyncError") {
+        setDb(err.dbState);
+        triggerSyncWarning(err.message);
+      } else {
+        console.error(err);
+        alert("Gagal menyimpan perubahan pengumuman.");
+      }
     } finally {
       setIsDbLoading(false);
     }
@@ -224,9 +264,14 @@ export default function App() {
     try {
       const updatedDB = await deleteMadingPostFromDB(postId);
       setDb(updatedDB);
-    } catch (err) {
-      console.error(err);
-      alert("Gagal menghapus pengumuman.");
+    } catch (err: any) {
+      if (err.name === "SyncError") {
+        setDb(err.dbState);
+        triggerSyncWarning(err.message);
+      } else {
+        console.error(err);
+        alert("Gagal menghapus pengumuman.");
+      }
     } finally {
       setIsDbLoading(false);
     }
@@ -237,9 +282,14 @@ export default function App() {
     try {
       const updatedDB = await updateMemberRoleInDB(memberId, role);
       setDb(updatedDB);
-    } catch (err) {
-      console.error(err);
-      alert("Gagal memperbarui role anggota.");
+    } catch (err: any) {
+      if (err.name === "SyncError") {
+        setDb(err.dbState);
+        triggerSyncWarning(err.message);
+      } else {
+        console.error(err);
+        alert("Gagal memperbarui role anggota.");
+      }
     } finally {
       setIsDbLoading(false);
     }
@@ -250,9 +300,32 @@ export default function App() {
     try {
       const updatedDB = await deleteMemberFromDB(memberId);
       setDb(updatedDB);
-    } catch (err) {
-      console.error(err);
-      alert("Gagal mengeluarkan anggota dari clan.");
+    } catch (err: any) {
+      if (err.name === "SyncError") {
+        setDb(err.dbState);
+        triggerSyncWarning(err.message);
+      } else {
+        console.error(err);
+        alert("Gagal mengeluarkan anggota dari clan.");
+      }
+    } finally {
+      setIsDbLoading(false);
+    }
+  };
+
+  const handleUpdateGuild = async (guildId: string, slogan: string, logo: string) => {
+    setIsDbLoading(true);
+    try {
+      const updatedDB = await updateGuildProfileInDB(guildId, slogan, logo);
+      setDb(updatedDB);
+    } catch (err: any) {
+      if (err.name === "SyncError") {
+        setDb(err.dbState);
+        triggerSyncWarning(err.message);
+      } else {
+        console.error(err);
+        alert("Gagal memperbarui profil klan.");
+      }
     } finally {
       setIsDbLoading(false);
     }
@@ -277,9 +350,21 @@ export default function App() {
         const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({ path: newurl }, '', newurl);
       }
-    } catch (err) {
-      console.error(err);
-      alert("Gagal me-reset database server.");
+    } catch (err: any) {
+      if (err.name === "SyncError") {
+        setDb(err.dbState);
+        triggerSyncWarning(err.message);
+        setActiveGuildId(null);
+        setActiveMemberId(null);
+        setCurrentView("landing");
+        setPrefilledGuildId("");
+        
+        setIsInitialized(false);
+        setIsBooting(true);
+      } else {
+        console.error(err);
+        alert("Gagal me-reset database server.");
+      }
     } finally {
       setIsDbLoading(false);
     }
@@ -395,19 +480,32 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            {isSupabaseConfigured ? (
+            {supabaseStatus === "connected" && (
               <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/25 px-3 py-1 rounded-full shadow-lg shadow-emerald-500/5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 SUPABASE CLOUD ACTIVE
               </span>
-            ) : (
+            )}
+            {supabaseStatus === "rls_locked" && (
+              <button 
+                onClick={() => {
+                  const el = document.getElementById("rls-setup-wizard");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-red-400 bg-red-950/40 border border-red-500/25 px-3.5 py-1.5 rounded-full shadow-lg shadow-red-500/5 animate-[pulse_2s_infinite] cursor-pointer hover:bg-red-900/20 transition-all duration-300 outline-none"
+              >
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                ⚠️ SUPABASE RLS LOCKED (CLICK TO FIX)
+              </button>
+            )}
+            {supabaseStatus === "local_only" && (
               <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-orange-400 bg-orange-950/40 border border-orange-500/25 px-3 py-1 rounded-full shadow-lg shadow-orange-500/5">
                 <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
                 LOCAL STORAGE PLAYGROUND
               </span>
             )}
             <span className="bg-orange-600/10 text-orange-400 border border-orange-500/20 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider font-mono">
-              {isSupabaseConfigured ? "LIVE DB" : "SANDBOX"}
+              {supabaseStatus === "connected" ? "LIVE DB" : supabaseStatus === "rls_locked" ? "LOCKED" : "SANDBOX"}
             </span>
           </div>
         </div>
@@ -422,6 +520,11 @@ export default function App() {
             onNavigate={(view) => setCurrentView(view)}
             prefilledGuildId={prefilledGuildId}
             setPrefilledGuildId={setPrefilledGuildId}
+            supabaseStatus={supabaseStatus}
+            onRecheckConnection={() => {
+              setIsInitialized(false);
+              setIsBooting(true);
+            }}
           />
         )}
 
@@ -462,6 +565,7 @@ export default function App() {
             onDeletePost={handleDeletePost}
             onUpdateRole={handleUpdateMemberRole}
             onKicked={handleKickMember}
+            onUpdateGuild={handleUpdateGuild}
           />
         )}
       </main>
@@ -473,6 +577,37 @@ export default function App() {
           <span className="text-xs font-mono font-bold tracking-wider uppercase text-orange-400">
             SINKRONISASI DATABASE...
           </span>
+        </div>
+      )}
+
+      {/* PREMIUM IN-APP FLOATING SYNC WARNING BANNER */}
+      {syncWarning && (
+        <div className="fixed bottom-6 left-6 z-[100] max-w-sm bg-slate-950/95 border border-red-500/40 text-slate-200 p-4 rounded-2xl shadow-2xl shadow-red-950/40 backdrop-blur-md animate-[pulse_5s_infinite] flex gap-3 items-start border-l-4 border-l-red-500">
+          <span className="text-lg shrink-0">⚠️</span>
+          <div className="space-y-1.5 flex-1">
+            <h5 className="text-[10px] font-mono font-black tracking-widest uppercase text-red-500">
+              SINKRONISASI CLOUD TERTUNDA
+            </h5>
+            <p className="text-[10px] text-slate-400 leading-relaxed font-sans font-medium">
+              {syncWarning}
+            </p>
+            <button
+              onClick={() => {
+                const el = document.getElementById("rls-setup-wizard");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+                setSyncWarning(null);
+              }}
+              className="text-[9px] font-mono font-black uppercase text-amber-500 hover:text-amber-400 transition-colors flex items-center gap-1 mt-1 cursor-pointer outline-none"
+            >
+              Buka Setup Wizard Untuk Membuka RLS &raquo;
+            </button>
+          </div>
+          <button 
+            onClick={() => setSyncWarning(null)}
+            className="text-xs text-slate-500 hover:text-slate-350 cursor-pointer p-0.5"
+          >
+            &times;
+          </button>
         </div>
       )}
 

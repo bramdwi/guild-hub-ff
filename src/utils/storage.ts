@@ -198,6 +198,15 @@ const saveLocalDB = (db: DBState): void => {
 // ASYNCHRONOUS DATABASE INTERFACE (SUPABASE / LOCAL)
 // ----------------------------------------------------
 
+export class SyncError extends Error {
+  dbState: DBState;
+  constructor(message: string, dbState: DBState) {
+    super(message);
+    this.name = "SyncError";
+    this.dbState = dbState;
+  }
+}
+
 export const getDB = async (): Promise<DBState> => {
   if (!isSupabaseConfigured || !supabase) {
     // Fallback to localStorage
@@ -232,16 +241,25 @@ export const getDB = async (): Promise<DBState> => {
   } catch (error: any) {
     console.error("[Supabase] Failed to fetch data:", error?.message || error);
     if (error?.message?.includes("permission denied") || error?.code === "42501") {
-      console.error("[Supabase] RLS POLICY ERROR: Jalankan perintah SQL berikut di Supabase SQL Editor untuk mengizinkan akses publik:");
+      console.error("[Supabase] RLS POLICY ERROR: Jalankan perintah SQL berikut di Supabase SQL Editor untuk mengizinkan akses publik sesuai Best Practices:");
       console.error(`
         ALTER TABLE guilds ENABLE ROW LEVEL SECURITY;
-        CREATE POLICY "Allow all access" ON guilds FOR ALL USING (true) WITH CHECK (true);
+        CREATE POLICY "Allow public read" ON guilds FOR SELECT USING (true);
+        CREATE POLICY "Allow public insert" ON guilds FOR INSERT WITH CHECK (true);
+        CREATE POLICY "Allow public update" ON guilds FOR UPDATE USING (true) WITH CHECK (true);
+        CREATE POLICY "Allow public delete" ON guilds FOR DELETE USING (true);
         
         ALTER TABLE members ENABLE ROW LEVEL SECURITY;
-        CREATE POLICY "Allow all access" ON members FOR ALL USING (true) WITH CHECK (true);
+        CREATE POLICY "Allow public read" ON members FOR SELECT USING (true);
+        CREATE POLICY "Allow public insert" ON members FOR INSERT WITH CHECK (true);
+        CREATE POLICY "Allow public update" ON members FOR UPDATE USING (true) WITH CHECK (true);
+        CREATE POLICY "Allow public delete" ON members FOR DELETE USING (true);
         
         ALTER TABLE mading_posts ENABLE ROW LEVEL SECURITY;
-        CREATE POLICY "Allow all access" ON mading_posts FOR ALL USING (true) WITH CHECK (true);
+        CREATE POLICY "Allow public read" ON mading_posts FOR SELECT USING (true);
+        CREATE POLICY "Allow public insert" ON mading_posts FOR INSERT WITH CHECK (true);
+        CREATE POLICY "Allow public update" ON mading_posts FOR UPDATE USING (true) WITH CHECK (true);
+        CREATE POLICY "Allow public delete" ON mading_posts FOR DELETE USING (true);
       `);
     }
     console.warn("[Supabase] Falling back to Local Storage.");
@@ -266,9 +284,23 @@ export const addGuildToDB = async (guild: Guild, ketuaMember: Member): Promise<D
     if (memberError) throw memberError;
 
     return await getDB();
-  } catch (error) {
-    console.error("[Supabase] addGuildToDB error:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("[Supabase] addGuildToDB error:", error?.message || error);
+    
+    // Graceful local storage fallback
+    const db = getLocalDB();
+    if (!db.guilds.some((g) => g.id_guild === guild.id_guild)) {
+      db.guilds.push(guild);
+    }
+    if (!db.members.some((m) => m.id_member === ketuaMember.id_member)) {
+      db.members.push(ketuaMember);
+    }
+    saveLocalDB(db);
+    
+    throw new SyncError(
+      "Gagal sinkronisasi data Guild Baru ke Cloud. Disimpan di Penyimpanan Lokal (Offline).",
+      db
+    );
   }
 };
 
@@ -284,9 +316,19 @@ export const addMemberToDB = async (member: Member): Promise<DBState> => {
     const { error } = await supabase.from("members").insert(member);
     if (error) throw error;
     return await getDB();
-  } catch (error) {
-    console.error("[Supabase] addMemberToDB error:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("[Supabase] addMemberToDB error:", error?.message || error);
+    
+    const db = getLocalDB();
+    if (!db.members.some((m) => m.id_member === member.id_member)) {
+      db.members.push(member);
+    }
+    saveLocalDB(db);
+    
+    throw new SyncError(
+      "Gagal bergabung sebagai Anggota di Cloud. Disimpan di Penyimpanan Lokal (Offline).",
+      db
+    );
   }
 };
 
@@ -302,9 +344,17 @@ export const deleteMemberFromDB = async (memberId: string): Promise<DBState> => 
     const { error } = await supabase.from("members").delete().eq("id_member", memberId);
     if (error) throw error;
     return await getDB();
-  } catch (error) {
-    console.error("[Supabase] deleteMemberFromDB error:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("[Supabase] deleteMemberFromDB error:", error?.message || error);
+    
+    const db = getLocalDB();
+    db.members = db.members.filter((m) => m.id_member !== memberId);
+    saveLocalDB(db);
+    
+    throw new SyncError(
+      "Gagal mengeluarkan Anggota dari Cloud. Diperbarui di Penyimpanan Lokal.",
+      db
+    );
   }
 };
 
@@ -325,9 +375,65 @@ export const updateMemberRoleInDB = async (memberId: string, role: UserRole): Pr
     const { error } = await supabase.from("members").update({ role }).eq("id_member", memberId);
     if (error) throw error;
     return await getDB();
-  } catch (error) {
-    console.error("[Supabase] updateMemberRoleInDB error:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("[Supabase] updateMemberRoleInDB error:", error?.message || error);
+    
+    const db = getLocalDB();
+    db.members = db.members.map((m) => {
+      if (m.id_member === memberId) {
+        return { ...m, role };
+      }
+      return m;
+    });
+    saveLocalDB(db);
+    
+    throw new SyncError(
+      "Gagal memperbarui Role Anggota di Cloud. Diperbarui di Penyimpanan Lokal.",
+      db
+    );
+  }
+};
+
+export const updateGuildProfileInDB = async (
+  guildId: string,
+  slogan: string,
+  logo: string
+): Promise<DBState> => {
+  if (!isSupabaseConfigured || !supabase) {
+    const db = getLocalDB();
+    db.guilds = db.guilds.map((g) => {
+      if (g.id_guild === guildId) {
+        return { ...g, slogan, logo };
+      }
+      return g;
+    });
+    saveLocalDB(db);
+    return db;
+  }
+
+  try {
+    const { error } = await supabase
+      .from("guilds")
+      .update({ slogan, logo })
+      .eq("id_guild", guildId);
+    if (error) throw error;
+    return await getDB();
+  } catch (error: any) {
+    console.error("[Supabase] updateGuildProfileInDB error:", error?.message || error);
+    
+    const db = getLocalDB();
+    db.guilds = db.guilds.map((g) => {
+      if (g.id_guild === guildId) {
+        return { ...g, slogan, logo };
+      }
+      return g;
+    });
+    saveLocalDB(db);
+    
+    throw new SyncError(
+      "Gagal memperbarui Profil Guild di Cloud. Diperbarui di Penyimpanan Lokal.",
+      db
+    );
   }
 };
 
@@ -343,9 +449,17 @@ export const addMadingPostToDB = async (post: MadingPost): Promise<DBState> => {
     const { error } = await supabase.from("mading_posts").insert(post);
     if (error) throw error;
     return await getDB();
-  } catch (error) {
-    console.error("[Supabase] addMadingPostToDB error:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("[Supabase] addMadingPostToDB error:", error?.message || error);
+    
+    const db = getLocalDB();
+    db.mading.unshift(post);
+    saveLocalDB(db);
+    
+    throw new SyncError(
+      "Gagal mempublikasikan Pengumuman ke Cloud. Disimpan di Penyimpanan Lokal.",
+      db
+    );
   }
 };
 
@@ -361,9 +475,17 @@ export const deleteMadingPostFromDB = async (postId: string): Promise<DBState> =
     const { error } = await supabase.from("mading_posts").delete().eq("id_post", postId);
     if (error) throw error;
     return await getDB();
-  } catch (error) {
-    console.error("[Supabase] deleteMadingPostFromDB error:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("[Supabase] deleteMadingPostFromDB error:", error?.message || error);
+    
+    const db = getLocalDB();
+    db.mading = db.mading.filter((p) => p.id_post !== postId);
+    saveLocalDB(db);
+    
+    throw new SyncError(
+      "Gagal menghapus Pengumuman dari Cloud. Dihapus dari Penyimpanan Lokal.",
+      db
+    );
   }
 };
 
@@ -384,9 +506,22 @@ export const editMadingPostInDB = async (postId: string, text: string): Promise<
     const { error } = await supabase.from("mading_posts").update({ isi_pengumuman: text }).eq("id_post", postId);
     if (error) throw error;
     return await getDB();
-  } catch (error) {
-    console.error("[Supabase] editMadingPostInDB error:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("[Supabase] editMadingPostInDB error:", error?.message || error);
+    
+    const db = getLocalDB();
+    db.mading = db.mading.map((p) => {
+      if (p.id_post === postId) {
+        return { ...p, isi_pengumuman: text };
+      }
+      return p;
+    });
+    saveLocalDB(db);
+    
+    throw new SyncError(
+      "Gagal mengedit Pengumuman di Cloud. Diperbarui di Penyimpanan Lokal.",
+      db
+    );
   }
 };
 
@@ -413,9 +548,14 @@ export const resetDBToDefault = async (): Promise<DBState> => {
     if (pErr) throw pErr;
 
     return await getDB();
-  } catch (error) {
-    console.error("[Supabase] resetDBToDefault error:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("[Supabase] resetDBToDefault error:", error?.message || error);
+    
+    saveLocalDB(SEED_DATA);
+    throw new SyncError(
+      "Gagal me-reset Cloud Database. Reset dilakukan di Penyimpanan Lokal (Offline).",
+      SEED_DATA
+    );
   }
 };
 
@@ -431,3 +571,4 @@ export const initializeGuildHub = (appName: string): { initialized: boolean } =>
   console.log(`[LogicFlow M-d7074e0d] R-2b020f5b: Returning initialization success`);
   return { initialized };
 };
+

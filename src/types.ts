@@ -11,6 +11,8 @@ export interface Guild {
   nama_ketua: string;
   kontak_ketua: string;  // WhatsApp or Discord contact
   created_at: string;
+  slogan?: string;       // Optional slogan
+  logo?: string;         // Optional logo URL or Base64 data URL
 }
 
 export interface Member {

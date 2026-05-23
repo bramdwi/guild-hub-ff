@@ -24,8 +24,6 @@ export default function RegisterMember({
   onEnterGuild,
 }: RegisterMemberProps) {
   // Input fields
-  const [selectedGuildId, setSelectedGuildId] = useState("");
-  const [useCustomGuildId, setUseCustomGuildId] = useState(false);
   const [customGuildId, setCustomGuildId] = useState("");
 
   const [nama, setNama] = useState("");
@@ -41,34 +39,21 @@ export default function RegisterMember({
   const [registeredMember, setRegisteredMember] = useState<Member | null>(null);
   const [errorCode, setErrorCode] = useState("");
 
-  // Populate selectedGuildId based on prefilled value or default
+  // Populate customGuildId based on prefilled value or default
   useEffect(() => {
     if (prefilledGuildId) {
-      const match = db.guilds.find(
-        (g) => g.id_guild.toUpperCase() === prefilledGuildId.toUpperCase()
-      );
-      if (match) {
-        setSelectedGuildId(match.id_guild);
-        setUseCustomGuildId(false);
-      } else {
-        setCustomGuildId(prefilledGuildId.toUpperCase());
-        setUseCustomGuildId(true);
-      }
-    } else if (db.guilds.length > 0) {
-      setSelectedGuildId(db.guilds[0].id_guild);
-    } else {
-      setUseCustomGuildId(true);
+      setCustomGuildId(prefilledGuildId.toUpperCase());
     }
-  }, [prefilledGuildId, db.guilds]);
+  }, [prefilledGuildId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorCode("");
 
-    const targetGuildId = (useCustomGuildId ? customGuildId : selectedGuildId).trim().toUpperCase();
+    const targetGuildId = customGuildId.trim().toUpperCase();
 
     if (!targetGuildId) {
-      return setErrorCode("Silakan masukkan atau pilih ID Guild.");
+      return setErrorCode("Silakan masukkan ID Guild.");
     }
 
     // Verify guild exists in DB
@@ -227,48 +212,24 @@ export default function RegisterMember({
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* GUILD SELECTION SECTION */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-blue-400 uppercase tracking-widest block">
-                Pilih Guild Tujuan
-              </label>
-              
-              {db.guilds.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setUseCustomGuildId(!useCustomGuildId)}
-                  className="text-[11px] font-semibold text-slate-400 hover:text-blue-400 underline transition"
-                >
-                  {useCustomGuildId ? "Pilih dari Guild Terdaftar" : "Ketik ID Guild Manual"}
-                </button>
-              )}
+            <label htmlFor="targetGuildIdInput" className="text-xs font-bold text-blue-400 uppercase tracking-widest block">
+              ID Guild Tujuan (Secret ID) *
+            </label>
+            <div>
+              <input
+                id="targetGuildIdInput"
+                type="text"
+                placeholder="Masukkan KODE ID KLAN (Contoh: FF-EVOS-21)"
+                autoComplete="off"
+                required
+                value={customGuildId}
+                onChange={(e) => setCustomGuildId(e.target.value.toUpperCase())}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-700 text-sm font-mono focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition uppercase tracking-wider"
+              />
             </div>
-
-            {useCustomGuildId || db.guilds.length === 0 ? (
-              <div>
-                <input
-                  type="text"
-                  placeholder="Masukkan KODE ID (Contoh: FF-EVOS-21)"
-                  required
-                  value={customGuildId}
-                  onChange={(e) => setCustomGuildId(e.target.value.toUpperCase())}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-700 text-sm font-mono focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition uppercase tracking-wider"
-                />
-              </div>
-            ) : (
-              <div>
-                <select
-                  value={selectedGuildId}
-                  onChange={(e) => setSelectedGuildId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
-                >
-                  {db.guilds.map((g) => (
-                    <option key={g.id_guild} value={g.id_guild} className="bg-slate-950 text-white">
-                      {g.nama_guild} ({g.id_guild})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+            <p className="text-[10px] text-slate-500 font-mono leading-relaxed mt-1">
+              🔒 ID Guild adalah rahasia tim klan Anda. Minta Ketua atau Officer Anda untuk membagikan ID unik klan sebelum mendaftar.
+            </p>
           </div>
 
           {/* MEMBER PROFILE DETAILS */}

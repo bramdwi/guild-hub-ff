@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { Shield, LogIn, ArrowLeft, Users, KeyRound, Lock, Eye, EyeOff, Zap } from "lucide-react";
+import { Shield, LogIn, ArrowLeft, Users, Lock, Eye, EyeOff } from "lucide-react";
 import { DBState, Guild, Member } from "../types";
 
 interface GuildLoginProps {
@@ -92,12 +92,6 @@ export default function GuildLogin({
     }, 300);
   };
 
-  const handleQuickFill = (member: Member) => {
-    setUsernameInput(member.username);
-    setPasswordInput(member.password);
-    setError("");
-  };
-
   // Role color map
   const getRoleBadge = (role: string) => {
     switch (role) {
@@ -170,50 +164,6 @@ export default function GuildLogin({
                     })}
                   </span>
                 </div>
-              </div>
-            </div>
-
-            {/* Roster Quick-Login Shortcuts */}
-            <div className="bg-slate-900/50 border border-slate-800/80 rounded-3xl p-5 backdrop-blur-md shadow-xl shadow-black/30">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-1.5">
-                <KeyRound className="w-3.5 h-3.5 text-orange-500" />
-                💡 AKUN UJI COBA (KLIK UNTUK AUTO-FILL):
-              </h4>
-
-              <div className="space-y-2">
-                {guildMembers.map((member) => (
-                  <button
-                    key={member.id_member}
-                    onClick={() => handleQuickFill(member)}
-                    className="w-full text-left bg-slate-950/70 hover:bg-slate-800/50 border border-slate-850 hover:border-slate-700 p-3 rounded-xl transition-all duration-200 group flex items-center gap-3"
-                  >
-                    {/* Avatar */}
-                    <div
-                      className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 font-display font-extrabold text-xs ${getRoleBadge(member.role)}`}
-                    >
-                      {member.nickname_ff[0]}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-bold text-xs truncate">
-                          {member.nickname_ff}
-                        </span>
-                        <span
-                          className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded border ${getRoleBadge(member.role)}`}
-                        >
-                          {member.role}
-                        </span>
-                      </div>
-                      <span className="text-[10px] text-slate-500 font-mono">
-                        U: {member.username} • P: {member.password}
-                      </span>
-                    </div>
-
-                    <Zap className="w-3.5 h-3.5 text-slate-600 group-hover:text-orange-500 transition shrink-0" />
-                  </button>
-                ))}
               </div>
             </div>
           </div>
