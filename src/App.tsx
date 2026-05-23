@@ -464,46 +464,7 @@ export default function App() {
       <div className="fixed -bottom-32 -left-32 h-[450px] w-[450px] bg-orange-600/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
       <div className="fixed -top-32 -right-32 h-[450px] w-[450px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
 
-      {/* GLOBAL NAVBAR BAR */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50 relative">
-        <div className="w-full max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div 
-            onClick={handleLogout}
-            className="flex items-center gap-3 cursor-pointer group"
-          >
-            <div className="h-8 w-8 rounded-lg bg-orange-600 flex items-center justify-center font-bold text-black shadow-lg shadow-orange-600/10">
-              FF
-            </div>
-            <span className="font-display text-xl font-black tracking-tighter uppercase italic text-orange-500 group-hover:text-orange-400 transition-colors">
-              Guild Hub FF
-            </span>
-          </div>
 
-          <div className="flex items-center gap-3">
-            {supabaseStatus === "connected" && (
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/25 px-3 py-1 rounded-full shadow-lg shadow-emerald-500/5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                SUPABASE CLOUD ACTIVE
-              </span>
-            )}
-            {supabaseStatus === "rls_locked" && (
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-red-400 bg-red-950/40 border border-red-500/25 px-3 py-1 rounded-full shadow-lg shadow-red-500/5">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                ⚠️ SUPABASE RLS LOCKED
-              </span>
-            )}
-            {supabaseStatus === "local_only" && (
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-orange-400 bg-orange-950/40 border border-orange-500/25 px-3 py-1 rounded-full shadow-lg shadow-orange-500/5">
-                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-                LOCAL STORAGE PLAYGROUND
-              </span>
-            )}
-            <span className="bg-orange-600/10 text-orange-400 border border-orange-500/20 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider font-mono">
-              {supabaseStatus === "connected" ? "LIVE DB" : supabaseStatus === "rls_locked" ? "LOCKED" : "SANDBOX"}
-            </span>
-          </div>
-        </div>
-      </header>
 
       {/* VIEWPORT AREA CONTENT */}
       <main className="relative">
