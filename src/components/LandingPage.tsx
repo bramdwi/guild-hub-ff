@@ -67,7 +67,7 @@ export default function LandingPage({
           GUILD HUB FF
         </h1>
         <p className="mt-3 text-slate-400 max-w-xl mx-auto text-sm sm:text-base font-sans leading-relaxed">
-          Platform manajemen Esports eksklusif untuk Guild & guild Game Free Fire di Indonesia. Atur jadwal scrim, turnamen, mading, dan Member guild Anda dalam satu pintu aman.
+          Platform manajemen Esports eksklusif untuk Guild Free Fire di Indonesia. Atur jadwal scrim, turnamen, mading, dan Member guild Anda dalam satu pintu aman.
         </p>
       </div>
 
