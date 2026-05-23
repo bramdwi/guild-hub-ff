@@ -152,11 +152,11 @@ export default function GuildLogin({
 
               <div className="space-y-3 text-xs">
                 <div className="flex justify-between items-center bg-slate-950/60 border border-slate-850 p-3 rounded-xl">
-                  <span className="text-slate-500 font-semibold">Kepala Klan:</span>
+                  <span className="text-slate-500 font-semibold">Kapten:</span>
                   <span className="text-white font-bold">{currentGuild.nama_ketua}</span>
                 </div>
                 <div className="flex justify-between items-center bg-slate-950/60 border border-slate-850 p-3 rounded-xl">
-                  <span className="text-slate-500 font-semibold">Total Roster:</span>
+                  <span className="text-slate-500 font-semibold">Member:</span>
                   <span className="text-blue-400 font-bold flex items-center gap-1">
                     <Users className="w-3 h-3" />
                     {guildMembers.length} Players
