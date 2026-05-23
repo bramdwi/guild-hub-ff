@@ -17,7 +17,7 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
   const [namaGuild, setNamaGuild] = useState("");
   const [namaKetua, setNamaKetua] = useState("");
   const [kontak, setKontak] = useState("");
-  
+
   // Member fields for the leader themselves
   const [umur, setUmur] = useState<number>(20);
   const [level, setLevel] = useState<number>(55);
@@ -108,12 +108,12 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
                 {registeredGuild.id_guild}
               </div>
               <div className="text-xs text-slate-400 mt-1 space-y-1">
-                <div>Klan: <span className="text-white font-semibold">{registeredGuild.nama_guild}</span></div>
+                <div>Guild: <span className="text-white font-semibold">{registeredGuild.nama_guild}</span></div>
                 <div className="border-t border-slate-900 pt-2 mt-2 font-sans">
                   Username Login: <span className="text-emerald-400 font-mono font-bold">{username.toLowerCase()}</span> &bull; Password: <span className="text-emerald-400 font-mono font-bold">{password}</span>
                 </div>
               </div>
-              
+
               <button
                 onClick={handleCopyId}
                 className="mt-4 inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white px-4 py-2 rounded-xl text-xs font-semibold transition"
@@ -138,8 +138,8 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
               </h4>
               <ul className="list-disc list-inside text-slate-400 space-y-1 block leading-relaxed">
                 <li>Gunakan ID ini untuk masuk ke Dashboard sebagai Ketua.</li>
-                <li>Bagikan ID atau Link pendaftaran kepada calon anggota klan Anda.</li>
-                <li>Ketua klan berkewajiban menyetujui, menyaring, dan mengelola role.</li>
+                <li>Bagikan ID atau Link pendaftaran kepada calon anggota guild Anda.</li>
+                <li>Ketua guild berkewajiban menyetujui, menyaring, dan mengelola role.</li>
               </ul>
             </div>
 
@@ -160,7 +160,7 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
 
   return (
     <div className="w-full max-w-xl mx-auto px-4 py-6 md:py-10">
-      
+
       {/* Back button */}
       <button
         onClick={onBack}
@@ -172,13 +172,13 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
 
       <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/10 blur-2xl rounded-full"></div>
-        
+
         <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white mb-2 flex items-center gap-2">
           <Shield className="text-orange-500 w-7 h-7" />
           Registrasi Guild Baru
         </h2>
         <p className="text-slate-400 text-xs sm:text-sm mb-6 pb-4 border-b border-slate-800">
-          Lengkapi form di bawah ini selaku Kapten / Ketua Guild untuk melahirkan ID klan unik baru di database Indonesia.
+          Lengkapi form di bawah ini selaku Kapten / Ketua Guild untuk melahirkan ID guild unik baru di database Indonesia.
         </p>
 
         {errorCode && (
@@ -191,9 +191,9 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
           {/* SECTION A: GUILD INFO */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-orange-500 uppercase tracking-widest">
-              A. Informasi Klan / Guild
+              A. Informasi Guild
             </h3>
-            
+
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-slate-300 text-xs font-medium uppercase tracking-wider mb-2">
@@ -230,7 +230,7 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
             <h3 className="text-xs font-bold text-orange-500 uppercase tracking-widest">
               B. Profil In-Game Ketua (Kapten)
             </h3>
-            
+
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-slate-300 text-xs font-medium uppercase tracking-wider mb-2">
@@ -313,7 +313,7 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
             <h3 className="text-xs font-bold text-orange-500 uppercase tracking-widest">
               C. Kredensial Login Ketua
             </h3>
-            
+
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-slate-300 text-xs font-medium uppercase tracking-wider mb-2">
@@ -335,7 +335,7 @@ export default function RegisterGuild({ onRegister, onBack }: RegisterGuildProps
                 </label>
                 <input
                   type="password"
-                  placeholder="Masukkan password klan"
+                  placeholder="Masukkan password guild"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

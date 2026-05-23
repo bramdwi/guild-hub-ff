@@ -111,7 +111,7 @@ export default function RegisterMember({
               Registrasi Berhasil!
             </h2>
             <p className="text-slate-400 text-sm max-w-sm mx-auto">
-              Anda telah terdaftar sebagai bagian dari squad klan di bawah ini. Selamat bertempur!
+              Anda telah terdaftar sebagai bagian dari Guild di bawah ini. Selamat bertempur!
             </p>
 
             {/* Esports badge card */}
@@ -119,7 +119,7 @@ export default function RegisterMember({
               <div className="absolute top-0 right-0 bg-blue-600/10 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider font-mono">
                 ROLE: MEMBER
               </div>
-              
+
               <div className="text-left space-y-3">
                 <div>
                   <span className="text-slate-500 text-[10px] font-bold uppercase block tracking-wider">GUILD TUJUAN</span>
@@ -128,7 +128,7 @@ export default function RegisterMember({
                     {registeredMember.id_guild}
                   </span>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-900">
                   <div>
                     <span className="text-slate-500 text-[10px] font-bold uppercase block tracking-wider font-mono">NICKNAME FF</span>
@@ -200,7 +200,7 @@ export default function RegisterMember({
           Registrasi Anggota Guild
         </h2>
         <p className="text-slate-400 text-xs sm:text-sm mb-6 pb-4 border-b border-slate-800">
-          Masukkan detail karakter Free Fire dan data diri Anda untuk divalidasi ke dalam pangkalan data tim klan Anda.
+          Masukkan detail karakter Free Fire dan data diri Anda untuk divalidasi ke dalam pangkalan data tim guild Anda.
         </p>
 
         {errorCode && (
@@ -219,7 +219,7 @@ export default function RegisterMember({
               <input
                 id="targetGuildIdInput"
                 type="text"
-                placeholder="Masukkan KODE ID KLAN (Contoh: FF-EVOS-21)"
+                placeholder="Masukkan KODE ID GUILD"
                 autoComplete="off"
                 required
                 value={customGuildId}
@@ -228,7 +228,7 @@ export default function RegisterMember({
               />
             </div>
             <p className="text-[10px] text-slate-500 font-mono leading-relaxed mt-1">
-              🔒 ID Guild adalah rahasia tim klan Anda. Minta Ketua atau Officer Anda untuk membagikan ID unik klan sebelum mendaftar.
+              🔒 ID Guild adalah rahasia tim guild Anda. Minta Ketua atau Officer Anda untuk membagikan ID unik guild sebelum mendaftar.
             </p>
           </div>
 
@@ -322,7 +322,7 @@ export default function RegisterMember({
             <h3 className="text-xs font-bold text-blue-400 uppercase tracking-widest">
               Akun Kredensial Akses (Untuk Login)
             </h3>
-            
+
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-slate-300 text-xs font-medium uppercase tracking-wider mb-2">

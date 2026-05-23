@@ -83,7 +83,7 @@ export default function MadingSection({
 
   return (
     <div className="space-y-6">
-      
+
       {/* Mading Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -92,7 +92,7 @@ export default function MadingSection({
             Mading & Jadwal Kegiatan
           </h3>
           <p className="text-slate-400 text-xs sm:text-sm">
-            Informasi scrim, turnamen klan, dan koordinasi taktis harian.
+            Informasi scrim, turnamen guild, dan koordinasi taktis harian.
           </p>
         </div>
 
@@ -159,7 +159,7 @@ export default function MadingSection({
             <Calendar className="w-12 h-12 text-slate-600 mx-auto mb-3" />
             <h4 className="font-display text-base font-bold text-slate-400">Belum Ada Pengumuman</h4>
             <p className="text-slate-600 text-xs max-w-xs mx-auto mt-1">
-              Saat ini belum ada pengumuman scrim atau kegiatan klan. Ketua atau Officer dapat menambahkannya via tombol di atas.
+              Saat ini belum ada pengumuman scrim atau kegiatan guild. Ketua atau Officer dapat menambahkannya via tombol di atas.
             </p>
           </div>
         ) : (
@@ -173,13 +173,12 @@ export default function MadingSection({
               >
                 {/* Decorative Side Marker based on role */}
                 <div
-                  className={`absolute top-0 left-0 w-1.5 h-full ${
-                    post.author_role === "Ketua"
+                  className={`absolute top-0 left-0 w-1.5 h-full ${post.author_role === "Ketua"
                       ? "bg-red-500"
                       : post.author_role === "Officer"
-                      ? "bg-amber-500"
-                      : "bg-blue-500"
-                  }`}
+                        ? "bg-amber-500"
+                        : "bg-blue-500"
+                    }`}
                 ></div>
 
                 {isEditing ? (
@@ -209,7 +208,7 @@ export default function MadingSection({
                 ) : (
                   /* NORMAL VIEW */
                   <div className="space-y-3">
-                    
+
                     {/* Post Metadata Header */}
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-950 pb-3">
                       <div className="flex items-center gap-2">

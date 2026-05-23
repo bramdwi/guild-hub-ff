@@ -185,7 +185,7 @@ export default function GuildLogin({
               <div className="mb-8">
                 <div className="inline-flex items-center gap-2 bg-orange-500/10 text-orange-400 border border-orange-500/20 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest font-mono mb-4">
                   <Lock className="w-3 h-3" />
-                  STAGE 2 — AUTENTIKASI ROSTER
+                  STAGE 2 — AUTENTIKASI
                 </div>
                 <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white mb-2">
                   Masuk Sebagai Siapa?
@@ -193,7 +193,7 @@ export default function GuildLogin({
                 <p className="text-slate-400 text-sm leading-relaxed max-w-md">
                   Guild <span className="text-orange-400 font-bold">{currentGuild.nama_guild}</span> terverifikasi.
                   Silakan masukkan <span className="text-white font-semibold">Username</span> dan{" "}
-                  <span className="text-white font-semibold">Password</span> roster Anda untuk melanjutkan ke dashboard arena.
+                  <span className="text-white font-semibold">Password</span>  Anda untuk melanjutkan ke dashboard arena.
                 </p>
               </div>
 
@@ -204,7 +204,7 @@ export default function GuildLogin({
                     htmlFor="guild-username"
                     className="block text-slate-300 text-[10px] font-bold uppercase tracking-wider mb-2"
                   >
-                    USERNAME ROSTER *
+                    USERNAME  *
                   </label>
                   <div className="relative">
                     <input
@@ -227,7 +227,7 @@ export default function GuildLogin({
                     htmlFor="guild-password"
                     className="block text-slate-300 text-[10px] font-bold uppercase tracking-wider mb-2"
                   >
-                    PASSWORD ROSTER *
+                    PASSWORD  *
                   </label>
                   <div className="relative">
                     <input
@@ -281,7 +281,7 @@ export default function GuildLogin({
               {/* Security notice */}
               <div className="mt-6 bg-slate-950/70 border border-slate-900 rounded-xl p-4 text-[10px] font-mono text-slate-500 leading-relaxed">
                 <span className="text-emerald-500 font-bold">🔒 SECURE:</span>{" "}
-                Autentikasi Anda dienkripsi dan diproses langsung ke database server guild. Anda akan masuk ke dashboard sesuai role yang terdaftar di roster (Ketua / Officer / Member).
+                Autentikasi Anda dienkripsi dan diproses langsung ke database server guild. Anda akan masuk ke dashboard sesuai role yang terdaftar di guild (Ketua / Officer / Member).
               </div>
             </div>
           </div>

@@ -63,7 +63,7 @@ export default function LandingPage({
       {/* Title Hero */}
       <div className="text-center mb-12 relative">
         <div className="absolute inset-0 bg-orange-600/10 blur-3xl rounded-full w-72 h-72 mx-auto -top-10"></div>
-        
+
         {/* Esports Badge Icon */}
         <div className="inline-flex items-center justify-center p-3.5 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-xl shadow-orange-600/20 mb-4 border border-orange-400/30 transform hover:scale-105 transition-transform duration-300">
           <Shield className="w-12 h-12 text-white animate-pulse" />
@@ -73,24 +73,24 @@ export default function LandingPage({
           GUILD HUB FF
         </h1>
         <p className="mt-3 text-slate-400 max-w-xl mx-auto text-sm sm:text-base font-sans leading-relaxed">
-          Platform manajemen Esports eksklusif untuk Guild & Klan Game Free Fire di Indonesia. Atur jadwal scrim, turnamen, mading, dan roster klan Anda dalam satu pintu aman.
+          Platform manajemen Esports eksklusif untuk Guild & guild Game Free Fire di Indonesia. Atur jadwal scrim, turnamen, mading, dan Member guild Anda dalam satu pintu aman.
         </p>
       </div>
 
       {/* Grid Layout for main forms (Simplified to symmetric 2-column layout) */}
       <div className="grid md:grid-cols-2 gap-8 items-stretch relative z-10">
-        
+
         {/* Panel 1: Masuk Dashboard Guild (Stage 1 — Guild ID Only) */}
         <div className="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-2xl shadow-black/40 relative group overflow-hidden flex flex-col justify-between">
           <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-orange-500 to-red-600"></div>
-          
+
           <div>
             <h2 className="font-display text-2xl font-bold text-white mb-2 flex items-center gap-2">
               <LogIn className="text-orange-500 w-6 h-6" />
               Masuk Dashboard Guild
             </h2>
             <p className="text-slate-400 text-xs sm:text-sm mb-6 leading-relaxed">
-              Masukkan <span className="text-white font-semibold">ID Guild</span> klan Anda terlebih dahulu. Setelah guild terverifikasi, Anda akan diarahkan ke halaman login untuk memasukkan kredensial roster.
+              Masukkan <span className="text-white font-semibold">ID Guild</span> guild Anda terlebih dahulu. Setelah guild terverifikasi, Anda akan diarahkan ke halaman login untuk memasukkan kredensial guild.
             </p>
 
             <form onSubmit={handleEnterGuild} className="space-y-4">
@@ -132,7 +132,7 @@ export default function LandingPage({
             <div className="mt-5 bg-slate-950/50 border border-slate-800 rounded-xl p-3 text-[10px] font-mono text-slate-500 leading-relaxed flex items-start gap-2">
               <span className="text-orange-500 font-bold shrink-0 mt-px">📋</span>
               <span>
-                Login terdiri dari <span className="text-orange-400 font-bold">2 tahap</span>: 
+                Login terdiri dari <span className="text-orange-400 font-bold">2 tahap</span>:
                 (1) Masukkan ID Guild → (2) Login dengan Username & Password di halaman berikutnya.
               </span>
             </div>
@@ -142,7 +142,7 @@ export default function LandingPage({
         {/* Panel 2: Registrasi Baru (Untuk Ketua Guild) */}
         <div className="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-2xl shadow-black/40 relative group overflow-hidden flex flex-col justify-between">
           <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-amber-500 to-orange-500"></div>
-          
+
           <div className="space-y-6">
             <div>
               <h2 className="font-display text-2xl font-bold text-white mb-2 flex items-center gap-2">
@@ -150,7 +150,7 @@ export default function LandingPage({
                 Untuk Ketua Guild
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
-                Apakah Anda kapten tim, leader klan, atau Ketua Guild Free Fire yang ingin memodernisasi manajemen roster dan scrim Anda? 
+                Apakah Anda kapten tim, leader guild, atau Ketua Guild Free Fire yang ingin memodernisasi manajemen member dan scrim Anda?
               </p>
             </div>
 
@@ -160,10 +160,10 @@ export default function LandingPage({
               </h4>
               <ul className="space-y-2 list-disc list-inside text-slate-400 text-xs leading-relaxed">
                 <li>Dapatkan <span className="text-amber-400 font-semibold">ID Guild Unik Nasional</span> secara instan.</li>
-                <li>Buat portal rekrutmen roster klan dengan link undangan otomatis.</li>
-                <li>Tulis, edit, dan hapus mading scrim serta jadwal turnamen klan.</li>
+                <li>Buat portal rekrutmen member guild dengan link undangan otomatis.</li>
+                <li>Tulis, edit, dan hapus mading scrim serta jadwal turnamen guild.</li>
                 <li>Promosikan anggota menjadi Officer untuk mendelegasikan tugas mading.</li>
-                <li>Keluarkan (kick) anggota klan yang melanggar aturan secara realtime.</li>
+                <li>Keluarkan (kick) anggota guild yang melanggar aturan secara realtime.</li>
               </ul>
             </div>
           </div>
@@ -198,42 +198,39 @@ export default function LandingPage({
       </div>
 
       {/* ⚔️ SUPABASE DATABASE SETUP & ACTIVATOR WIZARD ⚔️ */}
-      <div 
-        id="rls-setup-wizard" 
-        className={`mt-12 bg-slate-900/80 border rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-2xl relative overflow-hidden transition-all duration-500 ${
-          supabaseStatus === "rls_locked" 
-            ? "border-red-500/40 shadow-red-950/20" 
-            : supabaseStatus === "connected" 
-              ? "border-emerald-500/20 shadow-emerald-950/10" 
+      <div
+        id="rls-setup-wizard"
+        className={`mt-12 bg-slate-900/80 border rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-2xl relative overflow-hidden transition-all duration-500 ${supabaseStatus === "rls_locked"
+            ? "border-red-500/40 shadow-red-950/20"
+            : supabaseStatus === "connected"
+              ? "border-emerald-500/20 shadow-emerald-950/10"
               : "border-slate-800/85"
-        }`}
+          }`}
       >
         {/* Glow decoration */}
-        <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] pointer-events-none -mr-32 -mt-32 opacity-25 transition-colors duration-500 ${
-          supabaseStatus === "rls_locked" 
-            ? "bg-red-500" 
-            : supabaseStatus === "connected" 
-              ? "bg-emerald-500" 
+        <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] pointer-events-none -mr-32 -mt-32 opacity-25 transition-colors duration-500 ${supabaseStatus === "rls_locked"
+            ? "bg-red-500"
+            : supabaseStatus === "connected"
+              ? "bg-emerald-500"
               : "bg-orange-500"
-        }`}></div>
+          }`}></div>
 
         <div className="relative z-10 space-y-6 text-left">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-5">
             <div>
-              <span className={`text-[10px] font-mono font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full ${
-                supabaseStatus === "rls_locked" 
-                  ? "bg-red-500/10 text-red-400 border border-red-500/20" 
-                  : supabaseStatus === "connected" 
-                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
+              <span className={`text-[10px] font-mono font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full ${supabaseStatus === "rls_locked"
+                  ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                  : supabaseStatus === "connected"
+                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                     : "bg-orange-500/10 text-orange-400 border border-orange-500/20"
-              }`}>
+                }`}>
                 {supabaseStatus === "rls_locked" ? "⚠️ KONEKSI TERTAHAN (RLS LOCKED)" : supabaseStatus === "connected" ? "🛡️ SUPABASE CLOUD AKTIF & WRITABLE" : "🔌 LOCAL SANDBOX PLAYGROUND"}
               </span>
               <h3 className="font-display text-xl sm:text-2xl font-black italic text-white uppercase tracking-tight mt-2">
                 ⚔️ Supabase Cloud Database Activator
               </h3>
             </div>
-            
+
             <button
               onClick={onRecheckConnection}
               className="bg-slate-950 border border-slate-850 hover:border-orange-500 hover:text-orange-400 text-slate-300 font-mono text-xs font-bold px-4 py-2.5 rounded-xl transition duration-200 flex items-center gap-2 group active:scale-95 outline-none cursor-pointer"
@@ -285,7 +282,7 @@ export default function LandingPage({
               <h4 className="text-xs font-mono font-black uppercase text-slate-400 tracking-wider">
                 👉 CARA MENGAKTIFKAN CLOUD DATABASE DALAM 15 DETIK:
               </h4>
-              
+
               <div className="grid sm:grid-cols-3 gap-4 text-xs font-sans">
                 <div className="bg-slate-950 border border-slate-850 p-4 rounded-xl space-y-1.5">
                   <div className="font-mono text-orange-500 font-extrabold text-[10px]">LANGKAH 1</div>
@@ -298,9 +295,9 @@ export default function LandingPage({
                   <div className="font-mono text-orange-500 font-extrabold text-[10px]">LANGKAH 2</div>
                   <div className="font-bold text-white uppercase flex items-center gap-1.5">
                     Buka SQL Editor
-                    <a 
-                      href="https://supabase.com/dashboard" 
-                      target="_blank" 
+                    <a
+                      href="https://supabase.com/dashboard"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-orange-500 hover:text-orange-400 inline-flex items-center"
                     >
@@ -323,13 +320,13 @@ export default function LandingPage({
               {/* Collapsible SQL Block */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <button 
+                  <button
                     onClick={() => setShowSql(!showSql)}
                     className="text-xs font-mono font-bold text-slate-400 hover:text-white transition duration-200 flex items-center gap-1.5 outline-none cursor-pointer bg-transparent border-none"
                   >
                     {showSql ? "[-] Sembunyikan SQL Setup Code" : "[+] Tampilkan SQL Setup Code"}
                   </button>
-                  
+
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(`-- 1. HAPUS TABEL JIKA SUDAH ADA
@@ -457,7 +454,7 @@ VALUES
                 {showSql && (
                   <div className="relative">
                     <pre className="bg-slate-950 border border-slate-850 rounded-2xl p-4 text-[10px] font-mono text-slate-400 overflow-x-auto max-h-72 shadow-inner border-l-4 border-l-orange-500 select-all leading-normal">
-{`-- 1. HAPUS TABEL JIKA SUDAH ADA
+                      {`-- 1. HAPUS TABEL JIKA SUDAH ADA
 DROP TABLE IF EXISTS mading_posts CASCADE;
 DROP TABLE IF EXISTS members CASCADE;
 DROP TABLE IF EXISTS guilds CASCADE;

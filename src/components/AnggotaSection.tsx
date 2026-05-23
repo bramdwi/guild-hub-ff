@@ -71,7 +71,7 @@ export default function AnggotaSection({
       <div>
         <h3 className="font-display text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
           <Users className="text-blue-400 w-5 h-5" />
-          Daftar Roster Anggota
+          Daftar  Anggota
         </h3>
         <p className="text-slate-400 text-xs sm:text-sm">
           Saring, urutkan, dan kelola seluruh pasukan prajurit guild Anda.
@@ -127,7 +127,7 @@ export default function AnggotaSection({
             <User className="w-12 h-12 text-slate-600 mx-auto mb-3" />
             <h4 className="font-display text-base font-bold text-slate-400">Pemain Tidak Ditemukan</h4>
             <p className="text-slate-600 text-xs max-w-xs mx-auto mt-1">
-              Tidak ada data roster yang cocok dengan kata kunci pencarian atau filter yang Anda terapkan.
+              Tidak ada data  yang cocok dengan kata kunci pencarian atau filter yang Anda terapkan.
             </p>
           </div>
         ) : (

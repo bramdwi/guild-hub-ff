@@ -39,18 +39,17 @@ export default function DatabaseVisualizer({ db, onResetDB, onRebootSystem }: Da
           <div>
             <h3 className="text-sm sm:text-base font-display font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
               {isSupabaseConfigured ? "Virtual Database Inspector (Supabase Cloud)" : "Virtual Database Inspector (LocalStorage)"}
-              <span className={`border text-[10px] font-mono px-1.5 py-0.5 rounded-full uppercase ${
-                isSupabaseConfigured 
-                  ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" 
+              <span className={`border text-[10px] font-mono px-1.5 py-0.5 rounded-full uppercase ${isSupabaseConfigured
+                  ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
                   : "bg-orange-500/20 border-orange-500/30 text-orange-400"
-              }`}>
+                }`}>
                 Active
               </span>
             </h3>
             <p className="text-slate-400 text-xs font-sans mt-0.5">
-              {isSupabaseConfigured 
-                ? "Database cloud relasional Supabase aktif secara realtime." 
-                : "Simulasi database skema klan Free Fire secara realtime di browser Anda."}
+              {isSupabaseConfigured
+                ? "Database cloud relasional Supabase aktif secara realtime."
+                : "Simulasi database skema guild Free Fire secara realtime di browser Anda."}
             </p>
           </div>
         </div>
@@ -99,41 +98,37 @@ export default function DatabaseVisualizer({ db, onResetDB, onRebootSystem }: Da
           <div className="flex flex-wrap gap-1.5 border-b border-slate-900 pb-2">
             <button
               onClick={() => setActiveCollection("all")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition ${
-                activeCollection === "all"
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition ${activeCollection === "all"
                   ? "bg-indigo-600 text-white"
                   : "bg-slate-900 text-slate-400 hover:text-white"
-              }`}
+                }`}
             >
               🚀 All Collections ({db.guilds.length + db.members.length + db.mading.length})
             </button>
             <button
               onClick={() => setActiveCollection("guilds")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition ${
-                activeCollection === "guilds"
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition ${activeCollection === "guilds"
                   ? "bg-orange-600 text-white"
                   : "bg-slate-900 text-slate-400 hover:text-white"
-              }`}
+                }`}
             >
               📁 Guilds ({db.guilds.length})
             </button>
             <button
               onClick={() => setActiveCollection("members")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition ${
-                activeCollection === "members"
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition ${activeCollection === "members"
                   ? "bg-blue-600 text-white"
                   : "bg-slate-900 text-slate-400 hover:text-white"
-              }`}
+                }`}
             >
               📁 Members ({db.members.length})
             </button>
             <button
               onClick={() => setActiveCollection("mading")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition ${
-                activeCollection === "mading"
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition ${activeCollection === "mading"
                   ? "bg-amber-600 text-white"
                   : "bg-slate-900 text-slate-400 hover:text-white"
-              }`}
+                }`}
             >
               📁 Mading ({db.mading.length})
             </button>
@@ -151,7 +146,7 @@ export default function DatabaseVisualizer({ db, onResetDB, onRebootSystem }: Da
             </div>
             <div>
               <span className="text-amber-400 font-mono font-bold block uppercase mb-1">3. COLLECTION: Mading</span>
-              Menyimpan pengumuman scrim klan. Terikat dengan klan via <code className="text-white font-mono bg-slate-900 px-1 py-0.5 rounded text-[10px]">id_guild</code>.
+              Menyimpan pengumuman scrim guild. Terikat dengan guild via <code className="text-white font-mono bg-slate-900 px-1 py-0.5 rounded text-[10px]">id_guild</code>.
             </div>
           </div>
 
@@ -166,10 +161,10 @@ export default function DatabaseVisualizer({ db, onResetDB, onRebootSystem }: Da
                 activeCollection === "all"
                   ? db
                   : activeCollection === "guilds"
-                  ? db.guilds
-                  : activeCollection === "members"
-                  ? db.members
-                  : db.mading,
+                    ? db.guilds
+                    : activeCollection === "members"
+                      ? db.members
+                      : db.mading,
                 null,
                 2
               )}

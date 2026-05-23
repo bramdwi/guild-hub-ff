@@ -208,7 +208,7 @@ export default function GuildDashboard({
                   : "bg-blue-500/10 border-blue-500/30 text-blue-400"
                 }`}>
                 <span className="text-xs uppercase">{currentUser.nickname_ff[0]}</span>
-                <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-950" title="Online Roster"></span>
+                <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-950" title="Online "></span>
               </div>
             </div>
           )}
@@ -235,7 +235,7 @@ export default function GuildDashboard({
             </div>
             <div>
               <h4 className="text-xs sm:text-sm font-display font-black text-white uppercase tracking-wider">
-                Rekrut Roster Baru (Undangan Pendaftaran)
+                Rekrut Member Baru (Undangan Pendaftaran)
               </h4>
               <p className="text-slate-400 text-xs mt-0.5 max-w-md">
                 Bagikan link otomatis di bawah ini. Ketika dibuka, link ini akan langsung mengarahkan pendaftar ke form input dengan ID Guild terisi otomatis!
@@ -274,7 +274,7 @@ export default function GuildDashboard({
         </div>
         <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-2xl relative overflow-hidden group hover:border-slate-700 transition-all duration-300">
           <div className="absolute -right-2 -top-2 h-16 w-16 bg-orange-500/5 rounded-full blur-2xl group-hover:scale-125 transition-transform"></div>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Avg. Level Roster</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Avg. Level Member</p>
           <h3 className="text-3xl font-black mt-1 text-orange-500">
             LV. {guildMembers.length > 0 ? Math.round(guildMembers.reduce((acc, m) => acc + m.level, 0) / guildMembers.length) : 0}
           </h3>
@@ -319,7 +319,7 @@ export default function GuildDashboard({
               }`}
           >
             <Users className="w-4 h-4 shrink-0" />
-            Roster Pasukan
+            Member Pasukan
             <span className={`ml-auto border text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${activeTab === "anggota"
               ? "bg-blue-500/20 border-blue-500/30 text-blue-400"
               : "bg-slate-950/70 border-slate-800 text-slate-500"
@@ -458,7 +458,7 @@ export default function GuildDashboard({
 
                 <div className="grid grid-cols-2 gap-4 border-b border-slate-950 pb-3">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">NAMA KKAPTEN GUILD</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">NAMA KAPTEN GUILD</span>
                     <span className="block text-white font-semibold text-sm sm:text-base">{currentGuild.nama_ketua}</span>
                   </div>
                   <div>
@@ -483,7 +483,7 @@ export default function GuildDashboard({
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">TOTAL KEKUATAN ROSTER</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">TOTAL KEKUATAN </span>
                     <span className="block text-white font-bold text-xs sm:text-sm">{guildMembers.length} Aktif Players</span>
                   </div>
                 </div>
@@ -543,7 +543,7 @@ export default function GuildDashboard({
               <div className="bg-slate-950/80 border border-slate-900 rounded-xl p-4 text-xs text-slate-400 space-y-2 leading-relaxed">
                 <span className="font-bold text-white uppercase block">🛡️ TATA TERTIB GUILD:</span>
                 <p>
-                  1. Roster dilarang keras bermain menggunakan Cheat / Mod Menu / Script ilegal dalam scrimmage maupun turnamen turnamen kecil. Sanksi: Kick otomatis.
+                  1. Member dilarang keras bermain menggunakan Cheat / Mod Menu / Script ilegal dalam scrimmage maupun turnamen turnamen kecil. Sanksi: Kick otomatis.
                 </p>
                 <p>
                   2. Menjaga sopan santun antar rekan guild. Selalu hormati instruksi taktik yang diberikan Kapten (Ketua) dan wakil guild (Officer) demi keselarasan booyah!
