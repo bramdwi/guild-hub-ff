@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { Database, Eye, EyeOff, LayoutList, RefreshCw, Cpu } from "lucide-react";
 import { DBState } from "../types";
 import { resetDBToDefault } from "../utils/storage";
+import { isSupabaseConfigured } from "../utils/supabase";
 
 interface DatabaseVisualizerProps {
   db: DBState;
@@ -37,13 +38,19 @@ export default function DatabaseVisualizer({ db, onResetDB, onRebootSystem }: Da
           </div>
           <div>
             <h3 className="text-sm sm:text-base font-display font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-              Virtual Database Inspector (LocalStorage)
-              <span className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono px-1.5 py-0.5 rounded-full uppercase">
+              {isSupabaseConfigured ? "Virtual Database Inspector (Supabase Cloud)" : "Virtual Database Inspector (LocalStorage)"}
+              <span className={`border text-[10px] font-mono px-1.5 py-0.5 rounded-full uppercase ${
+                isSupabaseConfigured 
+                  ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" 
+                  : "bg-orange-500/20 border-orange-500/30 text-orange-400"
+              }`}>
                 Active
               </span>
             </h3>
             <p className="text-slate-400 text-xs font-sans mt-0.5">
-              Simulasi database skema klan Free Fire secara realtime di browser Anda.
+              {isSupabaseConfigured 
+                ? "Database cloud relasional Supabase aktif secara realtime." 
+                : "Simulasi database skema klan Free Fire secara realtime di browser Anda."}
             </p>
           </div>
         </div>

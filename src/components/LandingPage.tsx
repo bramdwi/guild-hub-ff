@@ -4,12 +4,12 @@
  */
 
 import React, { useState } from "react";
-import { LogIn, Shield, KeyRound, User, Database } from "lucide-react";
+import { LogIn, Shield, Database, ArrowRight } from "lucide-react";
 import { DBState } from "../types";
 
 interface LandingPageProps {
   db: DBState;
-  onLoginSuccess: (guildId: string, memberId: string) => void;
+  onEnterGuild: (guildId: string) => void;
   onNavigate: (view: "register-guild") => void;
   prefilledGuildId: string;
   setPrefilledGuildId: (id: string) => void;
@@ -17,17 +17,15 @@ interface LandingPageProps {
 
 export default function LandingPage({
   db,
-  onLoginSuccess,
+  onEnterGuild,
   onNavigate,
   prefilledGuildId,
   setPrefilledGuildId,
 }: LandingPageProps) {
   const [guildIdInput, setGuildIdInput] = useState(prefilledGuildId);
-  const [usernameInput, setUsernameInput] = useState("");
-  const [passwordInput, setPasswordInput] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleEnterGuild = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -35,43 +33,18 @@ export default function LandingPage({
       setError("Harap masukkan ID Guild!");
       return;
     }
-    if (!usernameInput.trim()) {
-      setError("Harap masukkan Username!");
-      return;
-    }
-    if (!passwordInput.trim()) {
-      setError("Harap masukkan Password!");
-      return;
-    }
 
     const cleanGuildId = guildIdInput.trim().toUpperCase();
-    const cleanUsername = usernameInput.trim().toLowerCase();
-    const cleanPassword = passwordInput.trim();
 
-    // 1. Validate Guild
+    // Validate Guild exists
     const foundGuild = db.guilds.find((g) => g.id_guild === cleanGuildId);
     if (!foundGuild) {
       setError(`ID Guild "${cleanGuildId}" tidak terdaftar di sistem!`);
       return;
     }
 
-    // 2. Validate Member in Guild
-    const foundMember = db.members.find(
-      (m) => m.id_guild === cleanGuildId && m.username.toLowerCase() === cleanUsername
-    );
-    if (!foundMember) {
-      setError(`Username "${cleanUsername}" tidak ditemukan di klan ini!`);
-      return;
-    }
-
-    // 3. Validate Password
-    if (foundMember.password !== cleanPassword) {
-      setError("Password yang Anda masukkan salah!");
-      return;
-    }
-
-    // Login successful
-    onLoginSuccess(cleanGuildId, foundMember.id_member);
+    // Pass to Stage 2
+    onEnterGuild(cleanGuildId);
   };
 
   // Quick stats
@@ -101,7 +74,7 @@ export default function LandingPage({
       {/* Grid Layout for main forms (Simplified to symmetric 2-column layout) */}
       <div className="grid md:grid-cols-2 gap-8 items-stretch relative z-10">
         
-        {/* Panel Login Kredensial */}
+        {/* Panel 1: Masuk Dashboard Guild (Stage 1 — Guild ID Only) */}
         <div className="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-2xl shadow-black/40 relative group overflow-hidden flex flex-col justify-between">
           <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-orange-500 to-red-600"></div>
           
@@ -110,11 +83,11 @@ export default function LandingPage({
               <LogIn className="text-orange-500 w-6 h-6" />
               Masuk Dashboard Guild
             </h2>
-            <p className="text-slate-400 text-xs sm:text-sm mb-6">
-              Masukkan ID Guild beserta Username dan Password klan Anda untuk masuk ke arena koordinasi mading & roster.
+            <p className="text-slate-400 text-xs sm:text-sm mb-6 leading-relaxed">
+              Masukkan <span className="text-white font-semibold">ID Guild</span> klan Anda terlebih dahulu. Setelah guild terverifikasi, Anda akan diarahkan ke halaman login untuk memasukkan kredensial roster.
             </p>
 
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleEnterGuild} className="space-y-4">
               <div>
                 <label htmlFor="guildId" className="block text-slate-300 text-[10px] font-bold uppercase tracking-wider mb-2">
                   ID GUILD *
@@ -129,44 +102,8 @@ export default function LandingPage({
                     setPrefilledGuildId(e.target.value);
                     if (error) setError("");
                   }}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-700 text-sm font-mono focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition uppercase tracking-wider"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-700 text-sm font-mono focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition uppercase tracking-wider"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="username" className="block text-slate-300 text-[10px] font-bold uppercase tracking-wider mb-2">
-                    USERNAME *
-                  </label>
-                  <input
-                    id="username"
-                    type="text"
-                    placeholder="Username"
-                    value={usernameInput}
-                    onChange={(e) => {
-                      setUsernameInput(e.target.value);
-                      if (error) setError("");
-                    }}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-700 text-sm font-mono focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="password" className="block text-slate-300 text-[10px] font-bold uppercase tracking-wider mb-2">
-                    PASSWORD *
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={passwordInput}
-                    onChange={(e) => {
-                      setPasswordInput(e.target.value);
-                      if (error) setError("");
-                    }}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-700 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition"
-                  />
-                </div>
               </div>
 
               {error && (
@@ -180,72 +117,64 @@ export default function LandingPage({
                 className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-display font-bold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-orange-600/20 hover:shadow-orange-600/40 group active:scale-[0.98] mt-2"
               >
                 Masuk Arena Guild
-                <LogIn className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </form>
+
+            {/* Divider with "2-stage" flow hint */}
+            <div className="mt-5 bg-slate-950/50 border border-slate-800 rounded-xl p-3 text-[10px] font-mono text-slate-500 leading-relaxed flex items-start gap-2">
+              <span className="text-orange-500 font-bold shrink-0 mt-px">📋</span>
+              <span>
+                Login terdiri dari <span className="text-orange-400 font-bold">2 tahap</span>: 
+                (1) Masukkan ID Guild → (2) Login dengan Username & Password di halaman berikutnya.
+              </span>
+            </div>
           </div>
 
-          {/* Quick test tips with click-to-autofill */}
+          {/* Quick Guild ID list for testing */}
           <div className="mt-8 pt-6 border-t border-slate-800/80">
             <h4 className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-1.5">
-              <KeyRound className="w-3.5 h-3.5 text-orange-500" />
-              💡 AKUN UJI COBA (KLIK UNTUK AUTO-FILL):
+              <Database className="w-3.5 h-3.5 text-orange-500" />
+              💡 GUILD TERDAFTAR (KLIK UNTUK AUTO-FILL):
             </h4>
             
-            <div className="flex flex-col gap-2.5">
-              {db.guilds.slice(0, 2).map((g) => {
-                const members = db.members.filter((m) => m.id_guild === g.id_guild);
-                const ketua = members.find((m) => m.role === "Ketua");
-                const member = members.find((m) => m.role === "Member");
-                
+            <div className="flex flex-col gap-2">
+              {db.guilds.map((g) => {
+                const memberCount = db.members.filter((m) => m.id_guild === g.id_guild).length;
                 return (
-                  <div
+                  <button
                     key={g.id_guild}
-                    className="bg-slate-950/85 border border-slate-805/85 p-3.5 rounded-xl text-xs space-y-2"
+                    onClick={() => {
+                      setGuildIdInput(g.id_guild);
+                      setPrefilledGuildId(g.id_guild);
+                      setError("");
+                    }}
+                    className="w-full text-left bg-slate-950/85 border border-slate-850 hover:border-orange-500/20 p-3 rounded-xl text-xs transition-all duration-200 flex items-center justify-between group"
                   >
-                    <div className="flex items-center justify-between border-b border-slate-900 pb-1.5">
-                      <span className="font-bold text-orange-400 font-display">{g.nama_guild}</span>
-                      <span className="font-mono text-[9px] text-slate-400 bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">
-                        ID: {g.id_guild}
-                      </span>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-orange-500/10 text-orange-400 rounded-lg shrink-0 font-display font-extrabold text-xs uppercase">
+                        {g.nama_guild.slice(0, 2)}
+                      </div>
+                      <div>
+                        <span className="font-bold text-white block group-hover:text-orange-400 transition-colors">
+                          {g.nama_guild}
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          {memberCount} Players
+                        </span>
+                      </div>
                     </div>
-                    
-                    <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400 leading-normal">
-                      {ketua && (
-                        <div 
-                          onClick={() => {
-                            setGuildIdInput(g.id_guild);
-                            setUsernameInput(ketua.username);
-                            setPasswordInput(ketua.password);
-                          }}
-                          className="hover:text-orange-400 hover:bg-orange-500/5 cursor-pointer transition bg-slate-900/50 p-2 rounded-lg border border-slate-800/30 hover:border-orange-500/20"
-                        >
-                          <span className="text-[9px] font-black text-red-500 uppercase block mb-0.5">🔑 KETUA (LEADER):</span>
-                          U: {ketua.username}<br />P: {ketua.password}
-                        </div>
-                      )}
-                      {member && (
-                        <div 
-                          onClick={() => {
-                            setGuildIdInput(g.id_guild);
-                            setUsernameInput(member.username);
-                            setPasswordInput(member.password);
-                          }}
-                          className="hover:text-blue-400 hover:bg-blue-500/5 cursor-pointer transition bg-slate-900/50 p-2 rounded-lg border border-slate-800/30 hover:border-blue-500/20"
-                        >
-                          <span className="text-[9px] font-black text-blue-400 uppercase block mb-0.5">🔑 MEMBER (ANGGOTA):</span>
-                          U: {member.username}<br />P: {member.password}
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                    <span className="font-mono text-[10px] text-slate-400 bg-slate-900 border border-slate-800 px-2 py-1 rounded">
+                      {g.id_guild}
+                    </span>
+                  </button>
                 );
               })}
             </div>
           </div>
         </div>
 
-        {/* Panel Registrasi Baru (Untuk Ketua Guild) */}
+        {/* Panel 2: Registrasi Baru (Untuk Ketua Guild) */}
         <div className="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-2xl shadow-black/40 relative group overflow-hidden flex flex-col justify-between">
           <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-amber-500 to-orange-500"></div>
           

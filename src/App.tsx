@@ -17,19 +17,22 @@ import {
   generateId,
   initializeGuildHub
 } from "./utils/storage";
+import { isSupabaseConfigured } from "./utils/supabase";
 import { DBState, ActiveView, Guild, Member, MadingPost, UserRole } from "./types";
 
 // Import Components
 import LandingPage from "./components/LandingPage";
+import GuildLogin from "./components/GuildLogin";
 import RegisterGuild from "./components/RegisterGuild";
 import RegisterMember from "./components/RegisterMember";
 import GuildDashboard from "./components/GuildDashboard";
 import DatabaseVisualizer from "./components/DatabaseVisualizer";
 
-import { Shield, Sparkles, HelpCircle } from "lucide-react";
+import { Shield, Sparkles, Database } from "lucide-react";
 
 export default function App() {
-  const [db, setDb] = useState<DBState>(getDB());
+  const [db, setDb] = useState<DBState>({ guilds: [], members: [], mading: [] });
+  const [isDbLoading, setIsDbLoading] = useState(false);
   const [currentView, setCurrentView] = useState<ActiveView>("landing");
   const [activeGuildId, setActiveGuildId] = useState<string | null>(null);
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
@@ -48,10 +51,31 @@ export default function App() {
     if (!isBooting) return;
     
     setBootProgress(0);
-    setBootStatusText("MENGHUBUNGKAN KE DATABASE SERVER...");
+    setBootStatusText(
+      isSupabaseConfigured 
+        ? "MENGHUBUNGKAN KE SUPABASE CLOUD DATABASE..." 
+        : "MENGHUBUNGKAN KE DATABASE SERVER LOKAL..."
+    );
     
+    let loadedDb: DBState | null = null;
+    let hasFinishedLoading = false;
+    
+    // Start fetching data immediately on boot
+    getDB().then((data) => {
+      loadedDb = data;
+      hasFinishedLoading = true;
+    }).catch((err) => {
+      console.error("Boot database load error:", err);
+      hasFinishedLoading = true;
+    });
+
     const interval = setInterval(() => {
       setBootProgress((prev) => {
+        // Slow down/stall progress at 90% if the database fetch hasn't completed yet
+        if (prev >= 90 && !hasFinishedLoading) {
+          return 90;
+        }
+
         const next = prev + Math.floor(Math.random() * 12) + 6;
         if (next >= 100) {
           clearInterval(interval);
@@ -59,6 +83,11 @@ export default function App() {
           // Instantiate the logic flow from initialize-guild-hub.json
           const result = initializeGuildHub("Guild Hub FF");
           setIsInitialized(result.initialized);
+          
+          // Apply loaded database records
+          if (loadedDb) {
+            setDb(loadedDb);
+          }
           
           // Delay turning off booting slightly for premium visual transition
           setTimeout(() => {
@@ -69,7 +98,11 @@ export default function App() {
         
         // Update status text dynamically
         if (next < 25) {
-          setBootStatusText("MENGHUBUNGKAN KE DATABASE SERVER...");
+          setBootStatusText(
+            isSupabaseConfigured 
+              ? "MENGHUBUNGKAN KE SUPABASE CLOUD..." 
+              : "MENGHUBUNGKAN KE DATABASE SERVER LOKAL..."
+          );
         } else if (next < 50) {
           setBootStatusText("MEMUAT METADATA GUILD & MEMBER...");
         } else if (next < 75) {
@@ -98,97 +131,151 @@ export default function App() {
     }
   }, []);
 
-  // Sync state helpers
-  // Sync state helpers
+  // Stage 1: Enter Guild (navigate to credential screen)
+  const handleEnterGuild = (guildId: string) => {
+    setActiveGuildId(guildId);
+    setActiveMemberId(null);
+    setCurrentView("guild-login");
+  };
+
+  // Stage 2: Credential Login Success (enter dashboard)
   const handleLoginSuccess = (guildId: string, memberId: string) => {
     setActiveGuildId(guildId);
     setActiveMemberId(memberId);
     setCurrentView("dashboard");
   };
 
-  const handleRegisterGuild = (newGuild: Guild, leader: Member) => {
-    const updatedDB = addGuildToDB(newGuild, leader);
-    setDb(updatedDB);
-    // Auto-login as the Ketua of the newly registered guild
-    setActiveGuildId(newGuild.id_guild);
-    setActiveMemberId(leader.id_member);
-    setCurrentView("dashboard");
+  const handleRegisterGuild = async (newGuild: Guild, leader: Member) => {
+    setIsDbLoading(true);
+    try {
+      const updatedDB = await addGuildToDB(newGuild, leader);
+      setDb(updatedDB);
+      // Auto-login as the Ketua of the newly registered guild
+      setActiveGuildId(newGuild.id_guild);
+      setActiveMemberId(leader.id_member);
+      setCurrentView("dashboard");
+    } catch (err) {
+      console.error(err);
+      alert("Gagal mendaftarkan guild ke database server. Silakan coba lagi.");
+    } finally {
+      setIsDbLoading(false);
+    }
   };
 
-  const handleRegisterMember = (newMember: Member) => {
-    const updatedDB = addMemberToDB(newMember);
-    setDb(updatedDB);
-  };
-
-  const handleAddPost = (text: string) => {
-    if (!activeGuildId) return;
-    
-    // Find who is posting in this guild. 
-    // In our prototype, they are acting as the active selected user
-    const guildMembers = db.members.filter((m) => m.id_guild === activeGuildId);
-    // Find the current pseudo-logged user in the dashboard. We can find by selecting who role matches
-    // But since dashboard handles simulated account state, let's search who is acting as Ketua/Officer.
-    // Let's pass author details from the active persona in the dashboard.
-    // Instead of doing guessing inside App, let's find the first member that has the power, OR we can let standard member post if role matches.
-    // Let's inspect which user is selected.
-    // In order to make it extremely clean, we will handle creating the post directly from App,
-    // assuming authorship belongs to whatever user is currently selected in dashboard state.
-    // That means we should receive author detail inside onAddPost. Let's pass it!
+  const handleRegisterMember = async (newMember: Member) => {
+    setIsDbLoading(true);
+    try {
+      const updatedDB = await addMemberToDB(newMember);
+      setDb(updatedDB);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal bergabung sebagai anggota. Username mungkin sudah digunakan. Silakan coba lagi.");
+    } finally {
+      setIsDbLoading(false);
+    }
   };
 
   // Upgraded announcement posting
-  const handlePublishPost = (text: string, authorNickname: string, authorRole: UserRole) => {
+  const handlePublishPost = async (text: string, authorNickname: string, authorRole: UserRole) => {
     if (!activeGuildId) return;
 
-    const newPost: MadingPost = {
-      id_post: `POST-${generateId()}`,
-      id_guild: activeGuildId,
-      isi_pengumuman: text,
-      author: authorNickname,
-      author_role: authorRole,
-      created_at: new Date().toISOString()
-    };
+    setIsDbLoading(true);
+    try {
+      const newPost: MadingPost = {
+        id_post: `POST-${generateId()}`,
+        id_guild: activeGuildId,
+        isi_pengumuman: text,
+        author: authorNickname,
+        author_role: authorRole,
+        created_at: new Date().toISOString()
+      };
 
-    const updatedDB = addMadingPostToDB(newPost);
-    setDb(updatedDB);
+      const updatedDB = await addMadingPostToDB(newPost);
+      setDb(updatedDB);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal mempublikasikan pengumuman ke cloud server.");
+    } finally {
+      setIsDbLoading(false);
+    }
   };
 
-  const handleEditPost = (postId: string, text: string) => {
-    const updatedDB = editMadingPostInDB(postId, text);
-    setDb(updatedDB);
+  const handleEditPost = async (postId: string, text: string) => {
+    setIsDbLoading(true);
+    try {
+      const updatedDB = await editMadingPostInDB(postId, text);
+      setDb(updatedDB);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal menyimpan perubahan pengumuman.");
+    } finally {
+      setIsDbLoading(false);
+    }
   };
 
-  const handleDeletePost = (postId: string) => {
-    const updatedDB = deleteMadingPostFromDB(postId);
-    setDb(updatedDB);
+  const handleDeletePost = async (postId: string) => {
+    setIsDbLoading(true);
+    try {
+      const updatedDB = await deleteMadingPostFromDB(postId);
+      setDb(updatedDB);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal menghapus pengumuman.");
+    } finally {
+      setIsDbLoading(false);
+    }
   };
 
-  const handleUpdateMemberRole = (memberId: string, role: UserRole) => {
-    const updatedDB = updateMemberRoleInDB(memberId, role);
-    setDb(updatedDB);
+  const handleUpdateMemberRole = async (memberId: string, role: UserRole) => {
+    setIsDbLoading(true);
+    try {
+      const updatedDB = await updateMemberRoleInDB(memberId, role);
+      setDb(updatedDB);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal memperbarui role anggota.");
+    } finally {
+      setIsDbLoading(false);
+    }
   };
 
-  const handleKickMember = (memberId: string) => {
-    const updatedDB = deleteMemberFromDB(memberId);
-    setDb(updatedDB);
+  const handleKickMember = async (memberId: string) => {
+    setIsDbLoading(true);
+    try {
+      const updatedDB = await deleteMemberFromDB(memberId);
+      setDb(updatedDB);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal mengeluarkan anggota dari clan.");
+    } finally {
+      setIsDbLoading(false);
+    }
   };
 
-  const handleResetDatabase = () => {
-    const defaultDB = resetDBToDefault();
-    setDb(defaultDB);
-    setActiveGuildId(null);
-    setActiveMemberId(null);
-    setCurrentView("landing");
-    setPrefilledGuildId("");
-    
-    // Reboot the system flow (M-d7074e0d)
-    setIsInitialized(false);
-    setIsBooting(true);
-    
-    // Clear URL parameters
-    if (typeof window !== "undefined" && window.history.pushState) {
-      const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-      window.history.pushState({ path: newurl }, '', newurl);
+  const handleResetDatabase = async () => {
+    setIsDbLoading(true);
+    try {
+      const defaultDB = await resetDBToDefault();
+      setDb(defaultDB);
+      setActiveGuildId(null);
+      setActiveMemberId(null);
+      setCurrentView("landing");
+      setPrefilledGuildId("");
+      
+      // Reboot the system flow (M-d7074e0d)
+      setIsInitialized(false);
+      setIsBooting(true);
+      
+      // Clear URL parameters
+      if (typeof window !== "undefined" && window.history.pushState) {
+        const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.pushState({ path: newurl }, '', newurl);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Gagal me-reset database server.");
+    } finally {
+      setIsDbLoading(false);
     }
   };
 
@@ -203,19 +290,6 @@ export default function App() {
       const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
       window.history.pushState({ path: newurl }, '', newurl);
     }
-  };
-
-  // Find currently acting author profile for dashboard postings
-  const getSelectedPersonaForPosts = (): { nickname: string; role: UserRole } => {
-    if (!activeGuildId) return { nickname: "Guest", role: "Member" };
-    // Find active acting user in current members list
-    const guildMembers = db.members.filter((m) => m.id_guild === activeGuildId);
-    // Find ketua as default fallback, else first member
-    const activePersona = guildMembers.find((m) => m.role === "Ketua") || guildMembers[0];
-    return {
-      nickname: activePersona ? activePersona.nickname_ff : "Anonymous",
-      role: activePersona ? activePersona.role : "Member"
-    };
   };
 
   if (isBooting) {
@@ -259,7 +333,7 @@ export default function App() {
 
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-mono font-bold">
-                <span className="text-orange-500 animate-pulse">{bootStatusText}</span>
+                <span className="text-orange-500 animate-pulse text-left truncate max-w-[80%]">{bootStatusText}</span>
                 <span className="text-slate-300">{bootProgress}%</span>
               </div>
               
@@ -277,7 +351,11 @@ export default function App() {
 
             <div className="flex items-center justify-center gap-2 pt-2 text-[10px] font-mono text-slate-500">
               <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin" />
-              <span>Instantiating logic flows & reactive database components...</span>
+              <span>
+                {isSupabaseConfigured
+                  ? "Menghubungkan ke server cloud live Supabase..."
+                  : "Menghubungkan ke playground storage lokal..."}
+              </span>
             </div>
           </div>
 
@@ -311,12 +389,19 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-slate-400 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-full">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              ID CLAN DATABASE SERVER
-            </span>
+            {isSupabaseConfigured ? (
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/25 px-3 py-1 rounded-full shadow-lg shadow-emerald-500/5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                SUPABASE CLOUD ACTIVE
+              </span>
+            ) : (
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-orange-400 bg-orange-950/40 border border-orange-500/25 px-3 py-1 rounded-full shadow-lg shadow-orange-500/5">
+                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                LOCAL STORAGE PLAYGROUND
+              </span>
+            )}
             <span className="bg-orange-600/10 text-orange-400 border border-orange-500/20 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider font-mono">
-              PROTOTYPE
+              {isSupabaseConfigured ? "LIVE DB" : "SANDBOX"}
             </span>
           </div>
         </div>
@@ -327,10 +412,19 @@ export default function App() {
         {currentView === "landing" && (
           <LandingPage
             db={db}
-            onLoginSuccess={handleLoginSuccess}
+            onEnterGuild={handleEnterGuild}
             onNavigate={(view) => setCurrentView(view)}
             prefilledGuildId={prefilledGuildId}
             setPrefilledGuildId={setPrefilledGuildId}
+          />
+        )}
+
+        {currentView === "guild-login" && activeGuildId && (
+          <GuildLogin
+            db={db}
+            guildId={activeGuildId}
+            onLoginSuccess={handleLoginSuccess}
+            onBack={handleLogout}
           />
         )}
 
@@ -366,14 +460,17 @@ export default function App() {
         )}
       </main>
 
-      {/* OVERRIDING ONADDPOST WITH DYNAMIC CURRENT SELECTOR IN DASHBOARD CALLBACK */}
-      {currentView === "dashboard" && activeGuildId && (
-        <div className="hidden">
-          {/* Invisible binder to mount customized triggers */}
+      {/* DYNAMIC DATABASE IN-FLIGHT ACTIVITY OVERLAY LOADER */}
+      {isDbLoading && (
+        <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-slate-950 border border-orange-500/30 text-slate-200 px-4 py-3 rounded-2xl shadow-2xl animate-[pulse_1.5s_infinite] backdrop-blur-md">
+          <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs font-mono font-bold tracking-wider uppercase text-orange-400">
+            SINKRONISASI DATABASE...
+          </span>
         </div>
       )}
 
-      {/* 4. DYNAMIC DATABASE INSPECTOR FOOTER LAYER */}
+      {/* DYNAMIC DATABASE INSPECTOR FOOTER LAYER */}
       <div className="w-full max-w-5xl mx-auto px-4 mt-8">
         <DatabaseVisualizer
           db={db}

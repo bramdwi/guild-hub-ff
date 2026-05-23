@@ -4,6 +4,7 @@
  */
 
 import { DBState, Guild, Member, MadingPost, UserRole } from "../types";
+import { supabase, isSupabaseConfigured } from "./supabase";
 
 const LOCAL_STORAGE_KEY = "guild_hub_ff_db";
 
@@ -169,7 +170,10 @@ const SEED_DATA: DBState = {
   ]
 };
 
-export const getDB = (): DBState => {
+// ----------------------------------------------------
+// LOCAL STORAGE GRADUAL FALLBACK IMPLEMENTATION
+// ----------------------------------------------------
+const getLocalDB = (): DBState => {
   if (typeof window === "undefined") return SEED_DATA;
   const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
   if (!raw) {
@@ -185,76 +189,212 @@ export const getDB = (): DBState => {
   }
 };
 
-export const saveDB = (db: DBState): void => {
+const saveLocalDB = (db: DBState): void => {
   if (typeof window === "undefined") return;
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(db));
 };
 
-// State update handlers
-export const addGuildToDB = (guild: Guild, ketuaMember: Member): DBState => {
-  const db = getDB();
-  db.guilds.push(guild);
-  db.members.push(ketuaMember);
-  saveDB(db);
-  return db;
+// ----------------------------------------------------
+// ASYNCHRONOUS DATABASE INTERFACE (SUPABASE / LOCAL)
+// ----------------------------------------------------
+
+export const getDB = async (): Promise<DBState> => {
+  if (!isSupabaseConfigured || !supabase) {
+    // Fallback to localStorage
+    return getLocalDB();
+  }
+
+  try {
+    const [guildsRes, membersRes, madingRes] = await Promise.all([
+      supabase.from("guilds").select("*").order("created_at", { ascending: true }),
+      supabase.from("members").select("*").order("created_at", { ascending: true }),
+      supabase.from("mading_posts").select("*").order("created_at", { ascending: false })
+    ]);
+
+    if (guildsRes.error) throw guildsRes.error;
+    if (membersRes.error) throw membersRes.error;
+    if (madingRes.error) throw madingRes.error;
+
+    // Adapt database table format into the application's DBState structure
+    return {
+      guilds: guildsRes.data || [],
+      members: membersRes.data || [],
+      mading: madingRes.data || []
+    };
+  } catch (error) {
+    console.error("[Supabase] Failed to fetch. Falling back to Local Storage.", error);
+    return getLocalDB();
+  }
 };
 
-export const addMemberToDB = (member: Member): DBState => {
-  const db = getDB();
-  // Ensure no duplicate nickname or real name in the same guild
-  db.members.push(member);
-  saveDB(db);
-  return db;
+export const addGuildToDB = async (guild: Guild, ketuaMember: Member): Promise<DBState> => {
+  if (!isSupabaseConfigured || !supabase) {
+    const db = getLocalDB();
+    db.guilds.push(guild);
+    db.members.push(ketuaMember);
+    saveLocalDB(db);
+    return db;
+  }
+
+  try {
+    const { error: guildError } = await supabase.from("guilds").insert(guild);
+    if (guildError) throw guildError;
+
+    const { error: memberError } = await supabase.from("members").insert(ketuaMember);
+    if (memberError) throw memberError;
+
+    return await getDB();
+  } catch (error) {
+    console.error("[Supabase] addGuildToDB error:", error);
+    throw error;
+  }
 };
 
-export const deleteMemberFromDB = (memberId: string): DBState => {
-  const db = getDB();
-  db.members = db.members.filter((m) => m.id_member !== memberId);
-  saveDB(db);
-  return db;
+export const addMemberToDB = async (member: Member): Promise<DBState> => {
+  if (!isSupabaseConfigured || !supabase) {
+    const db = getLocalDB();
+    db.members.push(member);
+    saveLocalDB(db);
+    return db;
+  }
+
+  try {
+    const { error } = await supabase.from("members").insert(member);
+    if (error) throw error;
+    return await getDB();
+  } catch (error) {
+    console.error("[Supabase] addMemberToDB error:", error);
+    throw error;
+  }
 };
 
-export const updateMemberRoleInDB = (memberId: string, role: UserRole): DBState => {
-  const db = getDB();
-  db.members = db.members.map((m) => {
-    if (m.id_member === memberId) {
-      return { ...m, role };
-    }
-    return m;
-  });
-  saveDB(db);
-  return db;
+export const deleteMemberFromDB = async (memberId: string): Promise<DBState> => {
+  if (!isSupabaseConfigured || !supabase) {
+    const db = getLocalDB();
+    db.members = db.members.filter((m) => m.id_member !== memberId);
+    saveLocalDB(db);
+    return db;
+  }
+
+  try {
+    const { error } = await supabase.from("members").delete().eq("id_member", memberId);
+    if (error) throw error;
+    return await getDB();
+  } catch (error) {
+    console.error("[Supabase] deleteMemberFromDB error:", error);
+    throw error;
+  }
 };
 
-export const addMadingPostToDB = (post: MadingPost): DBState => {
-  const db = getDB();
-  db.mading.unshift(post); // newest first
-  saveDB(db);
-  return db;
+export const updateMemberRoleInDB = async (memberId: string, role: UserRole): Promise<DBState> => {
+  if (!isSupabaseConfigured || !supabase) {
+    const db = getLocalDB();
+    db.members = db.members.map((m) => {
+      if (m.id_member === memberId) {
+        return { ...m, role };
+      }
+      return m;
+    });
+    saveLocalDB(db);
+    return db;
+  }
+
+  try {
+    const { error } = await supabase.from("members").update({ role }).eq("id_member", memberId);
+    if (error) throw error;
+    return await getDB();
+  } catch (error) {
+    console.error("[Supabase] updateMemberRoleInDB error:", error);
+    throw error;
+  }
 };
 
-export const deleteMadingPostFromDB = (postId: string): DBState => {
-  const db = getDB();
-  db.mading = db.mading.filter((p) => p.id_post !== postId);
-  saveDB(db);
-  return db;
+export const addMadingPostToDB = async (post: MadingPost): Promise<DBState> => {
+  if (!isSupabaseConfigured || !supabase) {
+    const db = getLocalDB();
+    db.mading.unshift(post);
+    saveLocalDB(db);
+    return db;
+  }
+
+  try {
+    const { error } = await supabase.from("mading_posts").insert(post);
+    if (error) throw error;
+    return await getDB();
+  } catch (error) {
+    console.error("[Supabase] addMadingPostToDB error:", error);
+    throw error;
+  }
 };
 
-export const editMadingPostInDB = (postId: string, text: string): DBState => {
-  const db = getDB();
-  db.mading = db.mading.map((p) => {
-    if (p.id_post === postId) {
-      return { ...p, isi_pengumuman: text };
-    }
-    return p;
-  });
-  saveDB(db);
-  return db;
+export const deleteMadingPostFromDB = async (postId: string): Promise<DBState> => {
+  if (!isSupabaseConfigured || !supabase) {
+    const db = getLocalDB();
+    db.mading = db.mading.filter((p) => p.id_post !== postId);
+    saveLocalDB(db);
+    return db;
+  }
+
+  try {
+    const { error } = await supabase.from("mading_posts").delete().eq("id_post", postId);
+    if (error) throw error;
+    return await getDB();
+  } catch (error) {
+    console.error("[Supabase] deleteMadingPostFromDB error:", error);
+    throw error;
+  }
 };
 
-export const resetDBToDefault = (): DBState => {
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(SEED_DATA));
-  return SEED_DATA;
+export const editMadingPostInDB = async (postId: string, text: string): Promise<DBState> => {
+  if (!isSupabaseConfigured || !supabase) {
+    const db = getLocalDB();
+    db.mading = db.mading.map((p) => {
+      if (p.id_post === postId) {
+        return { ...p, isi_pengumuman: text };
+      }
+      return p;
+    });
+    saveLocalDB(db);
+    return db;
+  }
+
+  try {
+    const { error } = await supabase.from("mading_posts").update({ isi_pengumuman: text }).eq("id_post", postId);
+    if (error) throw error;
+    return await getDB();
+  } catch (error) {
+    console.error("[Supabase] editMadingPostInDB error:", error);
+    throw error;
+  }
+};
+
+export const resetDBToDefault = async (): Promise<DBState> => {
+  if (!isSupabaseConfigured || !supabase) {
+    saveLocalDB(SEED_DATA);
+    return SEED_DATA;
+  }
+
+  try {
+    // Delete existing records (cascade deletes handles relationships)
+    await supabase.from("mading_posts").delete().neq("id_post", "");
+    await supabase.from("members").delete().neq("id_member", "");
+    await supabase.from("guilds").delete().neq("id_guild", "");
+
+    // Insert seeds
+    const { error: gErr } = await supabase.from("guilds").insert(SEED_DATA.guilds);
+    if (gErr) throw gErr;
+
+    const { error: mErr } = await supabase.from("members").insert(SEED_DATA.members);
+    if (mErr) throw mErr;
+
+    const { error: pErr } = await supabase.from("mading_posts").insert(SEED_DATA.mading);
+    if (pErr) throw pErr;
+
+    return await getDB();
+  } catch (error) {
+    console.error("[Supabase] resetDBToDefault error:", error);
+    throw error;
+  }
 };
 
 /**
@@ -264,7 +404,6 @@ export const resetDBToDefault = (): DBState => {
  */
 export const initializeGuildHub = (appName: string): { initialized: boolean } => {
   console.log(`[LogicFlow M-d7074e0d] Starting: Initialize Guild Hub ("${appName}")`);
-  // V-b891d22a: Assign initialized = true
   const initialized = true;
   console.log(`[LogicFlow M-d7074e0d] V-b891d22a: App activation state set to initialized = ${initialized}`);
   console.log(`[LogicFlow M-d7074e0d] R-2b020f5b: Returning initialization success`);

@@ -46,4 +46,5 @@ export type ActiveView =
   | "landing" 
   | "register-guild" 
   | "register-member" 
+  | "guild-login"
   | "dashboard";
