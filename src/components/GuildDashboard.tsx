@@ -225,41 +225,43 @@ export default function GuildDashboard({
         </div>
       </div>
 
-      {/* 2. RECRUITMENT LINK PANEL SHAPE */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-2xl rounded-full"></div>
-        
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-xl">
-            <Share2 className="w-5 h-5 animate-pulse" />
+      {/* 2. RECRUITMENT LINK PANEL SHAPE (Only for Ketua & Officer) */}
+      {currentUser && (currentUser.role === "Ketua" || currentUser.role === "Officer") && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-2xl rounded-full"></div>
+          
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-xl">
+              <Share2 className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <h4 className="text-xs sm:text-sm font-display font-black text-white uppercase tracking-wider">
+                Rekrut Roster Baru (Undangan Pendaftaran)
+              </h4>
+              <p className="text-slate-400 text-xs mt-0.5 max-w-md">
+                Bagikan link otomatis di bawah ini. Ketika dibuka, link ini akan langsung mengarahkan pendaftar ke form input dengan ID Guild terisi otomatis!
+              </p>
+            </div>
           </div>
-          <div>
-            <h4 className="text-xs sm:text-sm font-display font-black text-white uppercase tracking-wider">
-              Rekrut Roster Baru (Undangan Pendaftaran)
-            </h4>
-            <p className="text-slate-400 text-xs mt-0.5 max-w-md">
-              Bagikan link otomatis di bawah ini. Ketika dibuka, link ini akan langsung mengarahkan pendaftar ke form input dengan ID Guild terisi otomatis!
-            </p>
-          </div>
-        </div>
 
-        <button
-          onClick={handleCopyLink}
-          className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/10 shrink-0 w-full sm:w-auto"
-        >
-          {copiedLink ? (
-            <>
-              <Check className="w-3.5 h-3.5" />
-              Link Tersalin!
-            </>
-          ) : (
-            <>
-              <Copy className="w-3.5 h-3.5" />
-              Salin Link Undangan
-            </>
-          )}
-        </button>
-      </div>
+          <button
+            onClick={handleCopyLink}
+            className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/10 shrink-0 w-full sm:w-auto"
+          >
+            {copiedLink ? (
+              <>
+                <Check className="w-3.5 h-3.5" />
+                Link Tersalin!
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5" />
+                Salin Link Undangan
+              </>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* IMMERSIVE UI STATS ROW */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">

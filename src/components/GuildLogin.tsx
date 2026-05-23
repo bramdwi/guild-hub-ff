@@ -129,9 +129,17 @@ export default function GuildLogin({
               <div className="absolute -bottom-16 -right-16 h-48 w-48 bg-orange-500/5 rounded-full blur-3xl"></div>
 
               <div className="flex items-center gap-4 mb-5">
-                <div className="p-4 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-lg border border-orange-400/20 text-white font-display font-extrabold text-2xl tracking-tight uppercase">
-                  {currentGuild.nama_guild.slice(0, 2)}
-                </div>
+                {currentGuild.logo ? (
+                  <img 
+                    src={currentGuild.logo} 
+                    alt="Logo" 
+                    className="w-16 h-16 object-cover rounded-2xl shadow-lg border border-orange-400/20 shrink-0"
+                  />
+                ) : (
+                  <div className="p-4 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-lg border border-orange-400/20 text-white font-display font-extrabold text-2xl tracking-tight uppercase shrink-0">
+                    {currentGuild.nama_guild.slice(0, 2)}
+                  </div>
+                )}
                 <div>
                   <h2 className="font-display text-xl sm:text-2xl font-extrabold text-white uppercase tracking-tight">
                     {currentGuild.nama_guild}
