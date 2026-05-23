@@ -167,7 +167,7 @@ export default function InfoPages({ pageType, onBack }: InfoPagesProps) {
             </div>
             <div>
               <div className="text-[10px] font-mono text-slate-500 uppercase font-bold">WhatsApp Hotline</div>
-              <a href="https://wa.me/628123456789" target="_blank" rel="noopener noreferrer" className="text-sm text-white hover:text-orange-400 transition font-medium">
+              <a href="https://wa.me/60135539184" target="_blank" rel="noopener noreferrer" className="text-sm text-white hover:text-orange-400 transition font-medium">
                 +62 812-3456-789
               </a>
             </div>
