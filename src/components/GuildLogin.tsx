@@ -163,7 +163,7 @@ export default function GuildLogin({
                   </span>
                 </div>
                 <div className="flex justify-between items-center bg-slate-950/60 border border-slate-850 p-3 rounded-xl">
-                  <span className="text-slate-500 font-semibold">Berdiri:</span>
+                  <span className="text-slate-500 font-semibold">Terdaftar Sejak:</span>
                   <span className="text-slate-300 font-mono text-[10px]">
                     {new Date(currentGuild.created_at).toLocaleDateString("id-ID", {
                       year: "numeric",
