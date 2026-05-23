@@ -28,6 +28,7 @@ import GuildLogin from "./components/GuildLogin";
 import RegisterGuild from "./components/RegisterGuild";
 import RegisterMember from "./components/RegisterMember";
 import GuildDashboard from "./components/GuildDashboard";
+import InfoPages from "./components/InfoPages";
 
 import { Shield, Sparkles } from "lucide-react";
 
@@ -133,15 +134,22 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isBooting]);
 
-  // Read URL search query for invite codes (?invite=FF-EVOS-21) on initial mount
+  // Read URL search query for invite codes (?invite=FF-EVOS-21) or pages on initial mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const inviteCode = params.get("invite");
+      const page = params.get("page");
       
       if (inviteCode) {
         setPrefilledGuildId(inviteCode.toUpperCase());
         setCurrentView("register-member");
+      } else if (page === "privacy") {
+        setCurrentView("privacy-policy");
+      } else if (page === "terms") {
+        setCurrentView("terms-of-service");
+      } else if (page === "about") {
+        setCurrentView("about-us");
       }
     }
   }, []);
@@ -383,6 +391,14 @@ export default function App() {
     }
   };
 
+  const handleBackToLanding = () => {
+    setCurrentView("landing");
+    if (typeof window !== "undefined" && window.history.pushState) {
+      const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.pushState({ path: newurl }, '', newurl);
+    }
+  };
+
   if (isBooting) {
     return (
       <div className="min-h-screen bg-[#020617] text-slate-100 flex flex-col items-center justify-center font-sans antialiased relative overflow-hidden">
@@ -459,7 +475,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-100 pb-16 font-sans antialiased selection:bg-orange-600 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans antialiased selection:bg-orange-600 selection:text-white relative overflow-hidden flex flex-col justify-between">
       {/* Visual Overlay Background Elements */}
       <div className="fixed -bottom-32 -left-32 h-[450px] w-[450px] bg-orange-600/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
       <div className="fixed -top-32 -right-32 h-[450px] w-[450px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
@@ -518,6 +534,18 @@ export default function App() {
             onUpdateGuild={handleUpdateGuild}
           />
         )}
+
+        {currentView === "privacy-policy" && (
+          <InfoPages pageType="privacy" onBack={handleBackToLanding} />
+        )}
+
+        {currentView === "terms-of-service" && (
+          <InfoPages pageType="terms" onBack={handleBackToLanding} />
+        )}
+
+        {currentView === "about-us" && (
+          <InfoPages pageType="about" onBack={handleBackToLanding} />
+        )}
       </main>
 
       {/* DYNAMIC DATABASE IN-FLIGHT ACTIVITY OVERLAY LOADER */}
@@ -553,6 +581,38 @@ export default function App() {
           </button>
         </div>
       )}
+
+      {/* FOOTER FOR ADSENSE COMPLIANCE */}
+      <footer className="relative z-10 border-t border-slate-900 bg-slate-950/60 backdrop-blur-sm py-8 mt-auto">
+        <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left text-xs text-slate-500 font-mono">
+          <div>
+            &copy; 2026 GUILD HUB FF &bull; INDONESIAN ESPORTS ALLIANCE. All Rights Reserved.
+          </div>
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
+            <a 
+              href="?page=about" 
+              onClick={(e) => { e.preventDefault(); setCurrentView("about-us"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              className="hover:text-orange-400 transition"
+            >
+              Tentang Kami & Kontak
+            </a>
+            <a 
+              href="?page=privacy" 
+              onClick={(e) => { e.preventDefault(); setCurrentView("privacy-policy"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              className="hover:text-orange-400 transition"
+            >
+              Kebijakan Privasi
+            </a>
+            <a 
+              href="?page=terms" 
+              onClick={(e) => { e.preventDefault(); setCurrentView("terms-of-service"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              className="hover:text-orange-400 transition"
+            >
+              Syarat & Ketentuan
+            </a>
+          </div>
+        </div>
+      </footer>
 
     </div>
   );

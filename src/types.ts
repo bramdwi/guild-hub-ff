@@ -49,4 +49,7 @@ export type ActiveView =
   | "register-guild" 
   | "register-member" 
   | "guild-login"
-  | "dashboard";
+  | "dashboard"
+  | "privacy-policy"
+  | "terms-of-service"
+  | "about-us";
