@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { 
+import {
   Shield, Users, Bell, LogOut, Copy, Check, Users2, Info, Share2, Phone, Award, Star
 } from "lucide-react";
 import { DBState, Guild, Member, MadingPost, UserRole } from "../types";
@@ -38,7 +38,7 @@ export default function GuildDashboard({
 }: GuildDashboardProps) {
   // Fetch current guild detail
   const currentGuild = db.guilds.find((g) => g.id_guild === guildId);
-  
+
   // Filter members and posts belonging to this guild
   const guildMembers = db.members.filter((m) => m.id_guild === guildId);
   const guildPosts = db.mading.filter((p) => p.id_guild === guildId);
@@ -47,7 +47,7 @@ export default function GuildDashboard({
   const currentUser = db.members.find((m) => m.id_member === activeMemberId) || null;
 
   const [activeTab, setActiveTab] = useState<"mading" | "anggota" | "tentang">("mading");
-  
+
   // Clipboard copy feedback
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
@@ -136,7 +136,7 @@ export default function GuildDashboard({
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-6">
-      
+
       {/* 1. TOP DASHBOARD CONTROL PANEL BAR */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/50 border border-slate-800 rounded-3xl p-5 mb-8 backdrop-blur-md relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 via-red-500 to-amber-500"></div>
@@ -144,9 +144,9 @@ export default function GuildDashboard({
         {/* Guild metadata header */}
         <div className="flex items-center gap-4">
           {currentGuild.logo ? (
-            <img 
-              src={currentGuild.logo} 
-              alt="Logo Guild" 
+            <img
+              src={currentGuild.logo}
+              alt="Logo Guild"
               className="w-14 h-14 object-cover rounded-2xl shadow-lg border border-orange-400/20 shrink-0"
             />
           ) : (
@@ -173,7 +173,7 @@ export default function GuildDashboard({
                 )}
               </button>
             </div>
-            
+
             {currentGuild.slogan && (
               <p className="text-orange-405 text-[10px] sm:text-xs italic font-display font-black tracking-wider mt-0.5 uppercase text-orange-400">
                 🔥 "{currentGuild.slogan}"
@@ -187,7 +187,7 @@ export default function GuildDashboard({
 
         {/* User Identity active display & logout */}
         <div className="flex flex-wrap items-center gap-3 border-t border-slate-805/50 md:border-t-0 pt-4 md:pt-0">
-          
+
           {/* ACTIVE ACCOUNT LOGGED IN CARD */}
           {currentUser && (
             <div className="bg-slate-950 border border-slate-850 px-4 py-2 rounded-2xl flex items-center gap-3 max-w-xs relative">
@@ -201,13 +201,12 @@ export default function GuildDashboard({
               </div>
 
               {/* Display Profile Avatar based on selected role */}
-              <div className={`w-8 h-8 rounded-full border flex items-center justify-center relative shrink-0 font-display font-extrabold ${
-                currentUser.role === "Ketua" 
-                  ? "bg-red-500/10 border-red-500/30 text-red-400" 
+              <div className={`w-8 h-8 rounded-full border flex items-center justify-center relative shrink-0 font-display font-extrabold ${currentUser.role === "Ketua"
+                  ? "bg-red-500/10 border-red-500/30 text-red-400"
                   : currentUser.role === "Officer"
-                  ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
-                  : "bg-blue-500/10 border-blue-500/30 text-blue-400"
-              }`}>
+                    ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                    : "bg-blue-500/10 border-blue-500/30 text-blue-400"
+                }`}>
                 <span className="text-xs uppercase">{currentUser.nickname_ff[0]}</span>
                 <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-950" title="Online Roster"></span>
               </div>
@@ -229,7 +228,7 @@ export default function GuildDashboard({
       {currentUser && (currentUser.role === "Ketua" || currentUser.role === "Officer") && (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-2xl rounded-full"></div>
-          
+
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-xl">
               <Share2 className="w-5 h-5 animate-pulse" />
@@ -291,58 +290,53 @@ export default function GuildDashboard({
 
       {/* 3. CENTER LAYOUT & TABS NAVIGATION */}
       <div className="grid md:grid-cols-4 gap-8 items-start">
-        
+
         {/* Left Side Tab Navigation Column */}
         <div className="space-y-2">
-          
+
           <button
             onClick={() => setActiveTab("mading")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${
-              activeTab === "mading"
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${activeTab === "mading"
                 ? "bg-orange-500/10 text-orange-500 border-l-2 border-orange-500 font-bold"
                 : "bg-slate-950/40 text-slate-400 hover:text-slate-100 border border-slate-900 hover:bg-slate-800/20"
-            }`}
+              }`}
           >
             <Bell className="w-4 h-4 shrink-0" />
             Mading Scrim
-            <span className={`ml-auto border text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-              activeTab === "mading"
+            <span className={`ml-auto border text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${activeTab === "mading"
                 ? "bg-orange-500/20 border-orange-500/30 text-orange-400"
                 : "bg-slate-950/70 border-slate-800 text-slate-500"
-            }`}>
+              }`}>
               {guildPosts.length}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab("anggota")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${
-              activeTab === "anggota"
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${activeTab === "anggota"
                 ? "bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 font-bold"
                 : "bg-slate-950/40 text-slate-400 hover:text-slate-100 border border-slate-900 hover:bg-slate-800/20"
-            }`}
+              }`}
           >
             <Users className="w-4 h-4 shrink-0" />
             Roster Pasukan
-            <span className={`ml-auto border text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-              activeTab === "anggota"
+            <span className={`ml-auto border text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${activeTab === "anggota"
                 ? "bg-blue-500/20 border-blue-500/30 text-blue-400"
                 : "bg-slate-950/70 border-slate-800 text-slate-500"
-            }`}>
+              }`}>
               {guildMembers.length}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab("tentang")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${
-              activeTab === "tentang"
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${activeTab === "tentang"
                 ? "bg-amber-500/10 text-amber-500 border-l-2 border-amber-500 font-bold"
                 : "bg-slate-950/40 text-slate-400 hover:text-slate-100 border border-slate-900 hover:bg-slate-800/20"
-            }`}
+              }`}
           >
             <Info className="w-4 h-4 shrink-0" />
-            Informasi Klan
+            Informasi Guild
           </button>
 
           {/* Quick Info Box on side */}
@@ -350,7 +344,7 @@ export default function GuildDashboard({
             <h5 className="font-display text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5 border-b border-slate-900 pb-1.5">
               <span>🎮 LIVE STATUS</span>
             </h5>
-            
+
             <div className="space-y-1.5 text-xs">
               <div className="flex justify-between">
                 <span className="text-slate-500">Jabatan Anda:</span>
@@ -369,7 +363,7 @@ export default function GuildDashboard({
             </div>
 
             <div className="bg-slate-950 border border-slate-900 p-2 text-[10px] rounded text-slate-500 leading-normal block">
-              🔒 <span className="text-slate-400 font-semibold">SECURE LOGIN:</span> Sesi aktif Anda terhubung secara aman di database server klan.
+              🔒 <span className="text-slate-400 font-semibold">SECURE LOGIN:</span> Sesi aktif Anda terhubung secara aman di database server guild.
             </div>
           </div>
 
@@ -377,7 +371,7 @@ export default function GuildDashboard({
 
         {/* Right Side Main Content Pane */}
         <div className="md:col-span-3 bg-slate-950/60 border border-slate-900 rounded-3xl p-5 md:p-6 shadow-2xl relative">
-          
+
           {/* TAB 1: MADING SCRIM */}
           {activeTab === "mading" && (
             <MadingSection
@@ -409,10 +403,10 @@ export default function GuildDashboard({
               <div>
                 <h3 className="font-display text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
                   <Info className="text-slate-400 w-5 h-5" />
-                  Informasi Profil Klan
+                  Informasi Profil Guild
                 </h3>
                 <p className="text-slate-400 text-xs sm:text-sm">
-                  Rincian administrasi dan legalitas pembentukan klan di database nasional.
+                  Rincian administrasi dan legalitas pembentukan guild di database nasional.
                 </p>
               </div>
 
@@ -422,9 +416,9 @@ export default function GuildDashboard({
                   <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/5 blur-3xl rounded-full"></div>
                   <div className="shrink-0 relative">
                     {currentGuild.logo ? (
-                      <img 
-                        src={currentGuild.logo} 
-                        alt="Logo" 
+                      <img
+                        src={currentGuild.logo}
+                        alt="Logo"
                         className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-2xl border-2 border-orange-500/20 shadow-2xl"
                       />
                     ) : (
@@ -443,7 +437,7 @@ export default function GuildDashboard({
                       </p>
                     )}
                     <span className="inline-block font-mono text-[9px] font-bold text-slate-500 bg-slate-950 border border-slate-900 px-2.5 py-0.5 rounded">
-                      VERIFIED TIM KLASIFIKASI KLAN
+                      VERIFIED TIM KLASIFIKASI GUILD
                     </span>
                   </div>
                 </div>
@@ -499,9 +493,9 @@ export default function GuildDashboard({
               <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 space-y-4">
                 <h4 className="text-xs sm:text-sm font-display font-black text-amber-500 uppercase tracking-wider flex items-center gap-2">
                   <Award className="w-5 h-5 animate-pulse text-amber-500" />
-                  🏆 LEMARI PENGHARGAAN & PRESTASI KLAN
+                  🏆 LEMARI PENGHARGAAN & PRESTASI GUILD
                 </h4>
-                
+
                 <div className="grid sm:grid-cols-2 gap-3 text-xs leading-normal">
                   <div className="bg-slate-950 border border-slate-850 p-3 rounded-xl flex items-center gap-3">
                     <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg shrink-0">
@@ -512,13 +506,13 @@ export default function GuildDashboard({
                       <span className="text-[10px] text-slate-500 font-mono">Season 20 - FFML Community</span>
                     </div>
                   </div>
-                  
+
                   <div className="bg-slate-950 border border-slate-850 p-3 rounded-xl flex items-center gap-3">
                     <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg shrink-0">
                       <Star className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="font-bold block text-white">TOP 3 KLAN TERAKTIF NATIONAL</span>
+                      <span className="font-bold block text-white">TOP 3 GUILD TERAKTIF NATIONAL</span>
                       <span className="text-[10px] text-slate-500 font-mono">Verified Guild - Garena ID</span>
                     </div>
                   </div>
@@ -538,7 +532,7 @@ export default function GuildDashboard({
                       <Users2 className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="font-bold block text-white">KLAN KEKELUARGAAN TERBAIK</span>
+                      <span className="font-bold block text-white">GUILD KEKELUARGAAN TERBAIK</span>
                       <span className="text-[10px] text-slate-500 font-mono">Kategori Komunitas Discord ID</span>
                     </div>
                   </div>
@@ -552,26 +546,26 @@ export default function GuildDashboard({
                   1. Roster dilarang keras bermain menggunakan Cheat / Mod Menu / Script ilegal dalam scrimmage maupun turnamen turnamen kecil. Sanksi: Kick otomatis.
                 </p>
                 <p>
-                  2. Menjaga sopan santun antar rekan klan ksatria. Selalu hormati instruksi taktik yang diberikan Kapten (Ketua) dan wakil klan (Officer) demi keselarasan booyah!
+                  2. Menjaga sopan santun antar rekan guild. Selalu hormati instruksi taktik yang diberikan Kapten (Ketua) dan wakil klan (Officer) demi keselarasan booyah!
                 </p>
               </div>
 
-              {/* ⚔️ PENGATURAN PROFIL KLAN (KHUSUS KETUA) */}
+              {/* ⚔️ PENGATURAN PROFIL GUILD (KHUSUS KETUA) */}
               {currentUser?.role === "Ketua" && (
                 <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
                   <h4 className="text-xs sm:text-sm font-display font-black text-orange-500 uppercase tracking-wider flex items-center gap-2">
                     <Shield className="w-5 h-5 text-orange-500" />
-                    ⚔️ PENGATURAN PROFIL KLAN (KHUSUS KETUA)
+                    ⚔️ PENGATURAN PROFIL GUILD (KHUSUS KETUA)
                   </h4>
                   <p className="text-slate-400 text-[11px] leading-relaxed">
-                    Sebagai Ketua Guild, Anda memiliki hak istimewa untuk mengustomisasi slogan klan dan memasang lambang/logo resmi tim klan Anda agar terpampang gagah di arena.
+                    Sebagai Ketua Guild, Anda memiliki hak istimewa untuk mengustomisasi slogan Guild dan memasang lambang/logo resmi tim Anda agar terpampang gagah di arena.
                   </p>
 
                   <div className="space-y-4 text-xs">
                     {/* Slogan input */}
                     <div>
                       <label htmlFor="guildSloganInput" className="block text-slate-300 text-[10px] font-bold uppercase tracking-wider mb-2">
-                        SLOGAN RESMI KLAN
+                        SLOGAN RESMI Guild
                       </label>
                       <input
                         id="guildSloganInput"
@@ -633,7 +627,7 @@ export default function GuildDashboard({
                       <div className="flex-1 min-w-0">
                         <span className="text-[10px] font-bold text-slate-500 block uppercase tracking-wider mb-1 font-mono">PREVIEW LAMBANG</span>
                         <p className="text-[11px] text-slate-400 leading-normal">
-                          Lambang di atas akan menjadi representasi visual resmi klan Anda. Pastikan gambar rasio kotak (1:1) untuk hasil optimal.
+                          Lambang di atas akan menjadi representasi visual resmi guild  Anda. Pastikan gambar rasio kotak (1:1) untuk hasil optimal.
                         </p>
                         {logoInput && (
                           <button
@@ -651,12 +645,12 @@ export default function GuildDashboard({
                     <div className="pt-2 flex items-center justify-between gap-4">
                       {saveSuccess ? (
                         <p className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5 animate-[pulse_1s_infinite]">
-                          ✓ Pengaturan Profil Klan Berhasil Disimpan!
+                          ✓ Pengaturan Profil Guild Berhasil Disimpan!
                         </p>
                       ) : (
                         <div />
                       )}
-                      
+
                       <button
                         type="button"
                         onClick={() => {

@@ -75,7 +75,7 @@ export default function GuildLogin({
 
     if (!foundMember) {
       setIsAuthenticating(false);
-      setError(`Username "${cleanUsername}" tidak terdaftar di klan ini!`);
+      setError(`Username "${cleanUsername}" tidak terdaftar di guild ini!`);
       return;
     }
 
@@ -107,9 +107,8 @@ export default function GuildLogin({
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8 md:py-16">
       <div
-        className={`transition-all duration-500 ease-out ${
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-        }`}
+        className={`transition-all duration-500 ease-out ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+          }`}
       >
         {/* Back Navigation */}
         <button
@@ -130,9 +129,9 @@ export default function GuildLogin({
 
               <div className="flex items-center gap-4 mb-5">
                 {currentGuild.logo ? (
-                  <img 
-                    src={currentGuild.logo} 
-                    alt="Logo" 
+                  <img
+                    src={currentGuild.logo}
+                    alt="Logo"
                     className="w-16 h-16 object-cover rounded-2xl shadow-lg border border-orange-400/20 shrink-0"
                   />
                 ) : (
@@ -282,7 +281,7 @@ export default function GuildLogin({
               {/* Security notice */}
               <div className="mt-6 bg-slate-950/70 border border-slate-900 rounded-xl p-4 text-[10px] font-mono text-slate-500 leading-relaxed">
                 <span className="text-emerald-500 font-bold">🔒 SECURE:</span>{" "}
-                Autentikasi Anda dienkripsi dan diproses langsung ke database server klan. Anda akan masuk ke dashboard sesuai role yang terdaftar di roster (Ketua / Officer / Member).
+                Autentikasi Anda dienkripsi dan diproses langsung ke database server guild. Anda akan masuk ke dashboard sesuai role yang terdaftar di roster (Ketua / Officer / Member).
               </div>
             </div>
           </div>
