@@ -487,16 +487,10 @@ export default function App() {
               </span>
             )}
             {supabaseStatus === "rls_locked" && (
-              <button 
-                onClick={() => {
-                  const el = document.getElementById("rls-setup-wizard");
-                  if (el) el.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-red-400 bg-red-950/40 border border-red-500/25 px-3.5 py-1.5 rounded-full shadow-lg shadow-red-500/5 animate-[pulse_2s_infinite] cursor-pointer hover:bg-red-900/20 transition-all duration-300 outline-none"
-              >
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-                ⚠️ SUPABASE RLS LOCKED (CLICK TO FIX)
-              </button>
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-red-400 bg-red-950/40 border border-red-500/25 px-3 py-1 rounded-full shadow-lg shadow-red-500/5">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                ⚠️ SUPABASE RLS LOCKED
+              </span>
             )}
             {supabaseStatus === "local_only" && (
               <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold text-orange-400 bg-orange-950/40 border border-orange-500/25 px-3 py-1 rounded-full shadow-lg shadow-orange-500/5">
@@ -520,11 +514,6 @@ export default function App() {
             onNavigate={(view) => setCurrentView(view)}
             prefilledGuildId={prefilledGuildId}
             setPrefilledGuildId={setPrefilledGuildId}
-            supabaseStatus={supabaseStatus}
-            onRecheckConnection={() => {
-              setIsInitialized(false);
-              setIsBooting(true);
-            }}
           />
         )}
 
@@ -591,16 +580,9 @@ export default function App() {
             <p className="text-[10px] text-slate-400 leading-relaxed font-sans font-medium">
               {syncWarning}
             </p>
-            <button
-              onClick={() => {
-                const el = document.getElementById("rls-setup-wizard");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-                setSyncWarning(null);
-              }}
-              className="text-[9px] font-mono font-black uppercase text-amber-500 hover:text-amber-400 transition-colors flex items-center gap-1 mt-1 cursor-pointer outline-none"
-            >
-              Buka Setup Wizard Untuk Membuka RLS &raquo;
-            </button>
+            <span className="text-[9px] font-mono text-slate-500 block mt-1">
+              Harap hubungi Admin Database Anda untuk membuka RLS.
+            </span>
           </div>
           <button 
             onClick={() => setSyncWarning(null)}

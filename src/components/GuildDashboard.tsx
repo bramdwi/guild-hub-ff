@@ -472,7 +472,7 @@ export default function GuildDashboard({
 
                 <div className="grid grid-cols-2 gap-4 pt-1">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">TANGGAL BERDIRI (DATABASE)</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">TERDAFTAR SEJAK</span>
                     <span className="block text-slate-300 text-xs sm:text-sm">
                       {new Date(currentGuild.created_at).toLocaleDateString("id-ID", {
                         weekday: "long",
