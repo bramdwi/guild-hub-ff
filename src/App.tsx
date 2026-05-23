@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   getDB, 
   addGuildToDB, 
@@ -26,9 +26,8 @@ import GuildLogin from "./components/GuildLogin";
 import RegisterGuild from "./components/RegisterGuild";
 import RegisterMember from "./components/RegisterMember";
 import GuildDashboard from "./components/GuildDashboard";
-import DatabaseVisualizer from "./components/DatabaseVisualizer";
 
-import { Shield, Sparkles, Database } from "lucide-react";
+import { Shield, Sparkles } from "lucide-react";
 
 export default function App() {
   const [db, setDb] = useState<DBState>({ guilds: [], members: [], mading: [] });
@@ -46,33 +45,37 @@ export default function App() {
   // Direct entry/invite states
   const [prefilledGuildId, setPrefilledGuildId] = useState("");
 
+  // Ref to hold loaded data across closures safely
+  const loadedDbRef = useRef<DBState | null>(null);
+  const hasFinishedLoadingRef = useRef(false);
+
   // Boot loading interval simulating Free Fire engine setup & instantiating logic flow
   useEffect(() => {
     if (!isBooting) return;
     
     setBootProgress(0);
+    loadedDbRef.current = null;
+    hasFinishedLoadingRef.current = false;
+
     setBootStatusText(
       isSupabaseConfigured 
         ? "MENGHUBUNGKAN KE SUPABASE CLOUD DATABASE..." 
         : "MENGHUBUNGKAN KE DATABASE SERVER LOKAL..."
     );
     
-    let loadedDb: DBState | null = null;
-    let hasFinishedLoading = false;
-    
     // Start fetching data immediately on boot
     getDB().then((data) => {
-      loadedDb = data;
-      hasFinishedLoading = true;
+      loadedDbRef.current = data;
+      hasFinishedLoadingRef.current = true;
     }).catch((err) => {
       console.error("Boot database load error:", err);
-      hasFinishedLoading = true;
+      hasFinishedLoadingRef.current = true;
     });
 
     const interval = setInterval(() => {
       setBootProgress((prev) => {
         // Slow down/stall progress at 90% if the database fetch hasn't completed yet
-        if (prev >= 90 && !hasFinishedLoading) {
+        if (prev >= 90 && !hasFinishedLoadingRef.current) {
           return 90;
         }
 
@@ -84,15 +87,18 @@ export default function App() {
           const result = initializeGuildHub("Guild Hub FF");
           setIsInitialized(result.initialized);
           
-          // Apply loaded database records
-          if (loadedDb) {
-            setDb(loadedDb);
-          }
-          
-          // Delay turning off booting slightly for premium visual transition
+          // Apply loaded database records OUTSIDE the state updater
+          // using setTimeout to ensure this runs after the current render batch
           setTimeout(() => {
-            setIsBooting(false);
-          }, 800);
+            if (loadedDbRef.current) {
+              setDb(loadedDbRef.current);
+            }
+            // Delay turning off booting slightly for premium visual transition
+            setTimeout(() => {
+              setIsBooting(false);
+            }, 400);
+          }, 0);
+
           return 100;
         }
         
@@ -469,18 +475,6 @@ export default function App() {
           </span>
         </div>
       )}
-
-      {/* DYNAMIC DATABASE INSPECTOR FOOTER LAYER */}
-      <div className="w-full max-w-5xl mx-auto px-4 mt-8">
-        <DatabaseVisualizer
-          db={db}
-          onResetDB={handleResetDatabase}
-          onRebootSystem={() => {
-            setIsInitialized(false);
-            setIsBooting(true);
-          }}
-        />
-      </div>
 
     </div>
   );
