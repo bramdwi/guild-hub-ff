@@ -202,10 +202,10 @@ export default function GuildDashboard({
 
               {/* Display Profile Avatar based on selected role */}
               <div className={`w-8 h-8 rounded-full border flex items-center justify-center relative shrink-0 font-display font-extrabold ${currentUser.role === "Ketua"
-                  ? "bg-red-500/10 border-red-500/30 text-red-400"
-                  : currentUser.role === "Officer"
-                    ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
-                    : "bg-blue-500/10 border-blue-500/30 text-blue-400"
+                ? "bg-red-500/10 border-red-500/30 text-red-400"
+                : currentUser.role === "Officer"
+                  ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                  : "bg-blue-500/10 border-blue-500/30 text-blue-400"
                 }`}>
                 <span className="text-xs uppercase">{currentUser.nickname_ff[0]}</span>
                 <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-950" title="Online Roster"></span>
@@ -297,15 +297,15 @@ export default function GuildDashboard({
           <button
             onClick={() => setActiveTab("mading")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${activeTab === "mading"
-                ? "bg-orange-500/10 text-orange-500 border-l-2 border-orange-500 font-bold"
-                : "bg-slate-950/40 text-slate-400 hover:text-slate-100 border border-slate-900 hover:bg-slate-800/20"
+              ? "bg-orange-500/10 text-orange-500 border-l-2 border-orange-500 font-bold"
+              : "bg-slate-950/40 text-slate-400 hover:text-slate-100 border border-slate-900 hover:bg-slate-800/20"
               }`}
           >
             <Bell className="w-4 h-4 shrink-0" />
             Mading Scrim
             <span className={`ml-auto border text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${activeTab === "mading"
-                ? "bg-orange-500/20 border-orange-500/30 text-orange-400"
-                : "bg-slate-950/70 border-slate-800 text-slate-500"
+              ? "bg-orange-500/20 border-orange-500/30 text-orange-400"
+              : "bg-slate-950/70 border-slate-800 text-slate-500"
               }`}>
               {guildPosts.length}
             </span>
@@ -314,15 +314,15 @@ export default function GuildDashboard({
           <button
             onClick={() => setActiveTab("anggota")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${activeTab === "anggota"
-                ? "bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 font-bold"
-                : "bg-slate-950/40 text-slate-400 hover:text-slate-100 border border-slate-900 hover:bg-slate-800/20"
+              ? "bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 font-bold"
+              : "bg-slate-950/40 text-slate-400 hover:text-slate-100 border border-slate-900 hover:bg-slate-800/20"
               }`}
           >
             <Users className="w-4 h-4 shrink-0" />
             Roster Pasukan
             <span className={`ml-auto border text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${activeTab === "anggota"
-                ? "bg-blue-500/20 border-blue-500/30 text-blue-400"
-                : "bg-slate-950/70 border-slate-800 text-slate-500"
+              ? "bg-blue-500/20 border-blue-500/30 text-blue-400"
+              : "bg-slate-950/70 border-slate-800 text-slate-500"
               }`}>
               {guildMembers.length}
             </span>
@@ -331,8 +331,8 @@ export default function GuildDashboard({
           <button
             onClick={() => setActiveTab("tentang")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${activeTab === "tentang"
-                ? "bg-amber-500/10 text-amber-500 border-l-2 border-amber-500 font-bold"
-                : "bg-slate-950/40 text-slate-400 hover:text-slate-100 border border-slate-900 hover:bg-slate-800/20"
+              ? "bg-amber-500/10 text-amber-500 border-l-2 border-amber-500 font-bold"
+              : "bg-slate-950/40 text-slate-400 hover:text-slate-100 border border-slate-900 hover:bg-slate-800/20"
               }`}
           >
             <Info className="w-4 h-4 shrink-0" />
@@ -397,7 +397,7 @@ export default function GuildDashboard({
             />
           )}
 
-          {/* TAB 3: TENTANG CLAN DETAILS */}
+          {/* TAB 3: TENTANG GUILD DETAILS */}
           {activeTab === "tentang" && (
             <div className="space-y-6">
               <div>
@@ -458,7 +458,7 @@ export default function GuildDashboard({
 
                 <div className="grid grid-cols-2 gap-4 border-b border-slate-950 pb-3">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">NAMA KEPALA CLAN</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 font-mono">NAMA KKAPTEN GUILD</span>
                     <span className="block text-white font-semibold text-sm sm:text-base">{currentGuild.nama_ketua}</span>
                   </div>
                   <div>
@@ -541,12 +541,12 @@ export default function GuildDashboard({
 
               {/* Guide card */}
               <div className="bg-slate-950/80 border border-slate-900 rounded-xl p-4 text-xs text-slate-400 space-y-2 leading-relaxed">
-                <span className="font-bold text-white uppercase block">🛡️ TATA TERTIB CLAN (ESPORTS REGULATORY):</span>
+                <span className="font-bold text-white uppercase block">🛡️ TATA TERTIB GUILD:</span>
                 <p>
                   1. Roster dilarang keras bermain menggunakan Cheat / Mod Menu / Script ilegal dalam scrimmage maupun turnamen turnamen kecil. Sanksi: Kick otomatis.
                 </p>
                 <p>
-                  2. Menjaga sopan santun antar rekan guild. Selalu hormati instruksi taktik yang diberikan Kapten (Ketua) dan wakil klan (Officer) demi keselarasan booyah!
+                  2. Menjaga sopan santun antar rekan guild. Selalu hormati instruksi taktik yang diberikan Kapten (Ketua) dan wakil guild (Officer) demi keselarasan booyah!
                 </p>
               </div>
 

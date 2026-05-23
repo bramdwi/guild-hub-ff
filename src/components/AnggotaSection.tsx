@@ -66,7 +66,7 @@ export default function AnggotaSection({
 
   return (
     <div className="space-y-6">
-      
+
       {/* Section Header */}
       <div>
         <h3 className="font-display text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
@@ -133,7 +133,7 @@ export default function AnggotaSection({
         ) : (
           filteredAndSortedMembers.map((member) => {
             const isSelf = member.id_member === currentUser?.id_member;
-            
+
             return (
               <div
                 key={member.id_member}
@@ -160,7 +160,7 @@ export default function AnggotaSection({
                       <div className="text-sm sm:text-base font-display font-extrabold text-white truncate flex items-center gap-1">
                         {member.nickname_ff}
                       </div>
-                      
+
                       <div className="text-xs text-slate-400 flex items-center gap-1 leading-relaxed">
                         <span>{member.nama}</span>
                         <span>•</span>
